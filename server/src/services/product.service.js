@@ -40,6 +40,9 @@ class ProductService {
     productData.productCode = await this.generateProductCode();
     productData.createdBy = user ? user.id : null;
 
+    if (!productData.barcode) delete productData.barcode;
+    if (!productData.sku) delete productData.sku;
+
     if (productData.barcode) {
       const barcodeExists =
         await productRepository.findByBarcode(
@@ -104,6 +107,9 @@ class ProductService {
       updateData.branchId = user.branchId;
     }
     updateData.updatedBy = user ? user.id : null;
+
+    if (!updateData.barcode) delete updateData.barcode;
+    if (!updateData.sku) delete updateData.sku;
 
     return await productRepository.update(
       id,

@@ -36,14 +36,12 @@ const productSchema = new mongoose.Schema(
 
     barcode: {
       type: String,
-      default: null,
       unique: true,
       sparse: true,
     },
 
     sku: {
       type: String,
-      default: null,
       unique: true,
       sparse: true,
     },
@@ -121,11 +119,9 @@ const productSchema = new mongoose.Schema(
         },
         barcode: {
           type: String,
-          default: null,
         },
         sku: {
           type: String,
-          default: null,
         },
       },
     ],
