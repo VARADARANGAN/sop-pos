@@ -38,7 +38,7 @@ export default function InventoryPage() {
       const [invRes, tfRes, branchesRes, productsRes, ingredientsRes] = await Promise.all([
         apiRequest("/inventory"),
         apiRequest("/stock-transfers"),
-        apiRequest("/branches"),
+        currentUser.role === "SUPER_ADMIN" ? apiRequest("/branches") : Promise.resolve({ success: true, data: [] }),
         apiRequest("/products"),
         apiRequest("/ingredients"),
       ]);

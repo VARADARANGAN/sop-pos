@@ -26,7 +26,7 @@ const supplierSchema = new mongoose.Schema(
     branchId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Branch",
-      required: [true, "Branch ID is required for scoping"],
+      default: null,
     },
     linkedProducts: [
       {
