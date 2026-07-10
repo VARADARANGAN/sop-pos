@@ -7,6 +7,35 @@ import {
 } from "lucide-react";
 import "./LandingPage.css";
 
+// Intersection observer component to trigger slide-in reveal animations
+const ScrollReveal = ({ children }) => {
+  const ref = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.15 }
+    );
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+    return () => {
+      if (ref.current) observer.unobserve(ref.current);
+    };
+  }, []);
+
+  return (
+    <div ref={ref} className={`reveal-section ${isVisible ? "revealed" : ""}`}>
+      {children}
+    </div>
+  );
+};
+
 export default function LandingPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -35,34 +64,6 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Intersection observer hook to trigger slide-in reveal animations
-  const ScrollReveal = ({ children }) => {
-    const ref = useRef(null);
-    const [isVisible, setIsVisible] = useState(false);
-
-    useEffect(() => {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-          }
-        },
-        { threshold: 0.15 }
-      );
-      if (ref.current) {
-        observer.observe(ref.current);
-      }
-      return () => {
-        if (ref.current) observer.unobserve(ref.current);
-      };
-    }, []);
-
-    return (
-      <div ref={ref} className={`reveal-section ${isVisible ? "revealed" : ""}`}>
-        {children}
-      </div>
-    );
-  };
 
   const handleCTA = () => {
     if (user) {
