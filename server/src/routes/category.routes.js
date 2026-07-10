@@ -25,7 +25,7 @@ router.post(
 router.get(
   "/",
   authMiddleware,
-  authorize(ROLES.SUPER_ADMIN),
+  authorize(ROLES.SUPER_ADMIN, ROLES.BRANCH_ADMIN, ROLES.CASHIER),
   categoryController.getAllCategories
 );
 
@@ -35,7 +35,7 @@ router.get(
 router.get(
   "/:id",
   authMiddleware,
-  authorize(ROLES.SUPER_ADMIN),
+  authorize(ROLES.SUPER_ADMIN, ROLES.BRANCH_ADMIN, ROLES.CASHIER),
   categoryController.getCategoryById
 );
 

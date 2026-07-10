@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { 
   Sparkles, Shield, ShoppingBag, Layers, GitBranch, 
-  Users, UsersRound, Truck, TrendingUp, Cpu, ArrowRight 
+  Users, UsersRound, Truck, TrendingUp, Cpu, ArrowRight, Sun, Moon
 } from "lucide-react";
 import "./LandingPage.css";
 
@@ -11,6 +11,20 @@ export default function LandingPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [scrollY, setScrollY] = useState(0);
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'system');
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    localStorage.setItem('theme', nextTheme);
+    document.documentElement.setAttribute('data-theme', nextTheme);
+  };
+
+  useEffect(() => {
+    if (theme !== 'system') {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+  }, [theme]);
 
   // Monitor scroll for parallax calculations
   useEffect(() => {
@@ -73,9 +87,14 @@ export default function LandingPage() {
             <a href="#architecture">Architecture</a>
             <a href="#about">About</a>
           </nav>
-          <button className="btn btn-primary nav-cta-btn" onClick={handleCTA}>
-            {user ? "Enter Terminal" : "Access Terminal"}
-          </button>
+          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+            <button onClick={toggleTheme} style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--text-h)" }}>
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+            <button className="btn btn-primary nav-cta-btn" onClick={handleCTA}>
+              {user ? "Enter Terminal" : "Access Terminal"}
+            </button>
+          </div>
         </div>
       </header>
 

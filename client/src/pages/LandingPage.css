@@ -1,7 +1,6 @@
 .landing-page {
   background-color: var(--bg);
   color: var(--text);
-  overflow-x: hidden;
   font-family: var(--sans);
   text-align: left;
 }
