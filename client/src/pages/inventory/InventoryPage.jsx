@@ -16,6 +16,14 @@ export default function InventoryPage() {
   // Modal Controls
   const [showAdjustModal, setShowAdjustModal] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
+  const [showInitModal, setShowInitModal] = useState(false);
+
+  // Form State: Initialize Stock
+  const [initBranchId, setInitBranchId] = useState("");
+  const [initProductId, setInitProductId] = useState("");
+  const [initVariantId, setInitVariantId] = useState("");
+  const [initCurrentStock, setInitCurrentStock] = useState(0);
+  const [initReorderLevel, setInitReorderLevel] = useState(0);
 
   // Form State: Stock Adjustment (Damage/Wastage)
   const [adjItemType, setAdjItemType] = useState("PRODUCT");
@@ -81,6 +89,16 @@ export default function InventoryPage() {
     setShowTransferModal(true);
   };
 
+  const openInitModal = () => {
+    setInitBranchId(currentUser.role === "SUPER_ADMIN" ? (branches.length > 0 ? branches[0]._id : "") : currentUser.branchId || "");
+    setInitProductId(products.length > 0 ? products[0]._id : "");
+    setInitVariantId("");
+    setInitCurrentStock(0);
+    setInitReorderLevel(0);
+    setError(null);
+    setShowInitModal(true);
+  };
+
   const handleAdjustSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -100,6 +118,32 @@ export default function InventoryPage() {
       });
       if (res.success) {
         setShowAdjustModal(false);
+        fetchData();
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleInitSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    const payload = {
+      branchId: initBranchId,
+      productId: initProductId,
+      variantId: initVariantId || null,
+      currentStock: Number(initCurrentStock),
+      reorderLevel: Number(initReorderLevel),
+      reservedStock: 0,
+    };
+
+    try {
+      const res = await apiRequest("/inventory", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      if (res.success) {
+        setShowInitModal(false);
         fetchData();
       }
     } catch (err) {
@@ -171,6 +215,10 @@ export default function InventoryPage() {
           Inventory Management
         </h2>
         <div style={{ display: "flex", gap: "10px" }}>
+          <button className="btn btn-secondary" onClick={openInitModal}>
+            <Plus style={{ width: "16px", height: "16px" }} />
+            Initialize Stock
+          </button>
           <button className="btn btn-secondary" onClick={openAdjustModal}>
             <AlertTriangle style={{ width: "16px", height: "16px" }} />
             Wastage Adjustment
@@ -322,6 +370,88 @@ export default function InventoryPage() {
                 )}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* Initialize Stock modal */}
+      {showInitModal && (
+        <div className="modal-overlay">
+          <div className="modal-content glass-card">
+            <div className="modal-header">
+              <h3>Initialize Stock Balance</h3>
+              <button className="btn btn-secondary" style={{ padding: "4px" }} onClick={() => setShowInitModal(false)}>
+                ✕
+              </button>
+            </div>
+            <form onSubmit={handleInitSubmit}>
+              <div className="modal-body">
+                {error && <div className="alert alert-danger">{error}</div>}
+
+                {currentUser.role === "SUPER_ADMIN" && (
+                  <div className="form-group">
+                    <label className="form-label">Branch</label>
+                    <select className="form-control" value={initBranchId} onChange={(e) => setInitBranchId(e.target.value)} required>
+                      <option value="">-- Select Branch --</option>
+                      {branches.map(b => <option key={b._id} value={b._id}>{b.branchName}</option>)}
+                    </select>
+                  </div>
+                )}
+
+                <div className="form-group">
+                  <label className="form-label">Select Product</label>
+                  <select className="form-control" value={initProductId} onChange={(e) => setInitProductId(e.target.value)} required>
+                    <option value="">-- Choose Product --</option>
+                    {products.map(p => <option key={p._id} value={p._id}>{p.productName} ({p.productCode})</option>)}
+                  </select>
+                </div>
+
+                {products.find(p => p._id === initProductId)?.variants?.length > 0 && (
+                  <div className="form-group">
+                    <label className="form-label">Variant / Size</label>
+                    <select className="form-control" value={initVariantId} onChange={(e) => setInitVariantId(e.target.value)} required>
+                      <option value="">-- Choose Variant --</option>
+                      {products.find(p => p._id === initProductId)?.variants.map(v => (
+                        <option key={v._id} value={v._id}>{v.name} (${v.price})</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                  <div className="form-group">
+                    <label className="form-label">Opening Stock Quantity</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={initCurrentStock}
+                      onChange={(e) => setInitCurrentStock(parseInt(e.target.value) || 0)}
+                      min="0"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Reorder Level Alert</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={initReorderLevel}
+                      onChange={(e) => setInitReorderLevel(parseInt(e.target.value) || 0)}
+                      min="0"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={() => setShowInitModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Initialize Record
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
