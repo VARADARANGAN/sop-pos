@@ -2,7 +2,7 @@ import { createContext, useState, useEffect, useContext } from "react";
 
 const AuthContext = createContext(null);
 
-const API_URL = "http://localhost:5000/api/v1";
+const API_URL = "https://sop-pos.onrender.com/api/v1";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
