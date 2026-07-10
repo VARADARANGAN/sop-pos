@@ -231,7 +231,13 @@ export default function ProductsPage() {
                         </div>
                       )}
                     </td>
-                    <td>{p.categoryId?.categoryName || "Unassigned"}</td>
+                    <td>
+                      {p.categoryId
+                        ? p.categoryId.categoryCode
+                          ? `${p.categoryId.categoryCode} - ${p.categoryId.categoryName}`
+                          : p.categoryId.categoryName
+                        : "Unassigned"}
+                    </td>
                     <td>{p.branchId?.branchName || "All Branches"}</td>
                     <td>
                       {p.isCombo ? (
@@ -310,7 +316,7 @@ export default function ProductsPage() {
                       <option value="">-- Select Category --</option>
                       {categories.map((c) => (
                         <option key={c._id} value={c._id}>
-                          {c.categoryName}
+                          {c.categoryCode ? `${c.categoryCode} - ${c.categoryName}` : c.categoryName}
                         </option>
                       ))}
                     </select>
