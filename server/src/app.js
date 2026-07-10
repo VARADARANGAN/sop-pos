@@ -19,10 +19,24 @@ app.use(helmet());
  */
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      process.env.FRONTEND_URL,
-    ].filter(Boolean),
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+      
+      const allowedOrigins = [
+        "http://localhost:5173",
+        process.env.FRONTEND_URL,
+      ].filter(Boolean);
+
+      const isAllowed = allowedOrigins.includes(origin) || 
+                        /\.vercel\.app$/.test(origin) || 
+                        /localhost:\d+$/.test(origin);
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
