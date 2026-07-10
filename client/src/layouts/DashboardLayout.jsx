@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import {
@@ -16,12 +17,15 @@ import {
   Settings,
   LogOut,
   Sparkles,
+  Menu,
+  X,
 } from "lucide-react";
 import "./DashboardLayout.css";
 
 export default function DashboardLayout() {
   const { user, logout, hasRole } = useAuth();
   const navigate = useNavigate();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -115,11 +119,28 @@ export default function DashboardLayout() {
 
   return (
     <div className="app-container">
+      {/* Sidebar Mobile Backdrop Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="sidebar-overlay" 
+          onClick={() => setIsSidebarOpen(false)}
+        ></div>
+      )}
+
       {/* Sidebar Navigation */}
-      <aside className="sidebar">
+      <aside className={`sidebar ${isSidebarOpen ? "sidebar-open" : ""}`}>
         <div className="sidebar-header">
-          <Sparkles className="logo-icon" />
-          <span className="logo-text">SOP POS</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <Sparkles className="logo-icon" />
+            <span className="logo-text">SOP POS</span>
+          </div>
+          <button 
+            className="sidebar-close-btn" 
+            onClick={() => setIsSidebarOpen(false)}
+            aria-label="Close menu"
+          >
+            <X style={{ width: "20px", height: "20px" }} />
+          </button>
         </div>
 
         <div className="user-profile-badge">
@@ -147,6 +168,7 @@ export default function DashboardLayout() {
                   <li key={item.to}>
                     <NavLink
                       to={item.to}
+                      onClick={() => setIsSidebarOpen(false)}
                       className={({ isActive }) =>
                         isActive ? "nav-link active" : "nav-link"
                       }
@@ -171,8 +193,17 @@ export default function DashboardLayout() {
       {/* Main Content Area */}
       <main className="main-content">
         <header className="content-header">
-          <div className="header-breadcrumbs">
-            <span className="breadcrumb-current">SOP POS & Inventory Platform</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <button 
+              className="hamburger-btn" 
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              aria-label="Open menu"
+            >
+              <Menu style={{ width: "20px", height: "20px" }} />
+            </button>
+            <div className="header-breadcrumbs">
+              <span className="breadcrumb-current">SOP POS & Inventory Platform</span>
+            </div>
           </div>
           <div className="header-status">
             <span className="branch-badge">
