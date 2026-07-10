@@ -2,7 +2,13 @@ const mongoose = require("mongoose");
 
 const categorySchema = new mongoose.Schema(
   {
-
+    categoryCode: {
+      type: String,
+      required: [true, "Category code is required"],
+      unique: true,
+      trim: true,
+      uppercase: true,
+    },
 
     categoryName: {
       type: String,

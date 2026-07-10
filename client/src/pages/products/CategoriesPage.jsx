@@ -11,8 +11,8 @@ export default function CategoriesPage() {
 
   // Form State
   const [categoryId, setCategoryId] = useState(null);
+  const [categoryCode, setCategoryCode] = useState("");
   const [categoryName, setCategoryName] = useState("");
-  const [description, setDescription] = useState("");
 
   const fetchCategories = async () => {
     try {
@@ -33,16 +33,16 @@ export default function CategoriesPage() {
 
   const openCreateModal = () => {
     setCategoryId(null);
+    setCategoryCode("");
     setCategoryName("");
-    setDescription("");
     setError(null);
     setShowModal(true);
   };
 
   const openEditModal = (cat) => {
     setCategoryId(cat._id);
-    setCategoryName(cat.categoryName);
-    setDescription(cat.description || "");
+    setCategoryCode(cat.categoryCode || "");
+    setCategoryName(cat.categoryName || "");
     setError(null);
     setShowModal(true);
   };
@@ -50,7 +50,7 @@ export default function CategoriesPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    const payload = { categoryName, description };
+    const payload = { categoryCode, categoryName };
     try {
       let res;
       if (categoryId) {
@@ -107,8 +107,8 @@ export default function CategoriesPage() {
           <table className="custom-table">
             <thead>
               <tr>
+                <th>Category Code</th>
                 <th>Category Name</th>
-                <th>Description</th>
                 <th style={{ textAlign: "right" }}>Actions</th>
               </tr>
             </thead>
@@ -122,8 +122,8 @@ export default function CategoriesPage() {
               ) : (
                 categories.map((c) => (
                   <tr key={c._id}>
-                    <td style={{ fontWeight: 600, color: "var(--text-h)" }}>{c.categoryName}</td>
-                    <td>{c.description || "-"}</td>
+                    <td style={{ fontWeight: 600, color: "var(--text-h)" }}>{c.categoryCode}</td>
+                    <td>{c.categoryName}</td>
                     <td style={{ textAlign: "right" }}>
                       <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
                         <button className="btn btn-secondary" style={{ padding: "6px" }} onClick={() => openEditModal(c)}>
@@ -155,6 +155,17 @@ export default function CategoriesPage() {
               <div className="modal-body">
                 {error && <div className="alert alert-danger">{error}</div>}
                 <div className="form-group">
+                  <label className="form-label">Category Code</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="e.g. BEV, MAIN, DESSERT"
+                    value={categoryCode}
+                    onChange={(e) => setCategoryCode(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="form-group">
                   <label className="form-label">Category Name</label>
                   <input
                     type="text"
@@ -163,16 +174,6 @@ export default function CategoriesPage() {
                     value={categoryName}
                     onChange={(e) => setCategoryName(e.target.value)}
                     required
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Description</label>
-                  <textarea
-                    className="form-control"
-                    placeholder="Category details"
-                    rows="3"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
                   />
                 </div>
               </div>

@@ -5,6 +5,14 @@ class CategoryService {
    * Create Category
    */
   async createCategory(categoryData) {
+    // Check duplicate category code
+    const existingCode = await categoryRepository.findByCode(
+      categoryData.categoryCode
+    );
+
+    if (existingCode) {
+      throw new Error("Category code already exists");
+    }
 
     // Check duplicate category name
     const existingName = await categoryRepository.findByName(
