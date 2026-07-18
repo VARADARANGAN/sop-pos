@@ -1,4 +1,4 @@
-.landing-page {
+﻿.landing-page {
   font-family: var(--sans);
   background-color: var(--bg);
   color: var(--text);
@@ -415,3 +415,4 @@
   opacity: 1;
   transform: translateY(0);
 }
+

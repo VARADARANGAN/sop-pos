@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { 
   DollarSign, ShoppingCart, AlertTriangle, Package, 
@@ -172,7 +172,7 @@ export default function DashboardPage() {
                   <div className="list-item warning-item" key={item._id}>
                     <div className="item-details">
                       <span className="item-name">{item.productId?.productName || item.name}</span>
-                      <span className="item-meta">Min Level: {item.reorderLevel} � Branch: {item.branchId?.branchName || "Main"}</span>
+                      <span className="item-meta">Min Level: {item.reorderLevel} • Branch: {item.branchId?.branchName || "Main"}</span>
                     </div>
                     <div className="item-badge danger">
                       {item.currentStock} {item.unit || "Left"}
@@ -218,3 +218,4 @@ export default function DashboardPage() {
     </div>
   );
 }
+

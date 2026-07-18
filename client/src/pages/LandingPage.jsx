@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { 
@@ -167,9 +167,10 @@ export default function LandingPage() {
             <Sparkles className="logo-icon-glow" />
             <span>CulinaFlow</span>
           </div>
-          <p>� 2026 CulinaFlow Systems. All rights reserved.</p>
+          <p>© 2026 CulinaFlow Systems. All rights reserved.</p>
         </div>
       </footer>
     </div>
   );
 }
+
