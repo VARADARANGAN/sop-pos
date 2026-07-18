@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Package, Plus, MoveHorizontal, AlertTriangle, ShieldCheck, HelpCircle } from "lucide-react";
 import { formatCurrency } from "../../utils/formatters";
-import "./InventoryPage.css";
 
 export default function InventoryPage() {
   const { apiRequest, user: currentUser, hasRole } = useAuth();
