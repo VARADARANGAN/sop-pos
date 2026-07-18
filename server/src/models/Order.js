@@ -50,11 +50,13 @@ const orderSchema = new mongoose.Schema(
           type: Number,
           required: [true, "Price is required"],
           min: [0, "Price cannot be negative"],
+          max: [999999, "Price exceeds maximum limit"],
         },
         costPrice: {
           type: Number,
           required: [true, "Cost price is required"],
           min: [0, "Cost price cannot be negative"],
+          max: [999999, "Cost price exceeds maximum limit"],
         },
         subtotal: {
           type: Number,
@@ -67,6 +69,8 @@ const orderSchema = new mongoose.Schema(
         discount: {
           type: Number,
           default: 0,
+          min: [0, "Discount cannot be negative"],
+          max: [100, "Discount percentage cannot exceed 100"],
         },
         total: {
           type: Number,
@@ -88,6 +92,7 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       default: 0,
       min: [0, "Discount cannot be negative"],
+      max: [100, "Discount percentage cannot exceed 100"],
     },
     grandTotal: {
       type: Number,

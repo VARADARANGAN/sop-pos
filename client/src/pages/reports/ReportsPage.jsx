@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { TrendingUp, Calendar, CreditCard, DollarSign, Award } from "lucide-react";
+import { TrendingUp, Calendar, CreditCard, Award } from "lucide-react";
+import { formatCurrency } from "../../utils/formatters";
 
 export default function ReportsPage() {
   const { apiRequest } = useAuth();
@@ -96,7 +97,7 @@ export default function ReportsPage() {
                 <div key={item.method}>
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px", fontWeight: 600, marginBottom: "4px" }}>
                     <span>{item.method}</span>
-                    <span>${item.amount?.toFixed(2)} ({pct.toFixed(1)}%)</span>
+                    <span>{formatCurrency(item.amount)} ({pct.toFixed(1)}%)</span>
                   </div>
                   <div style={{ height: "8px", background: "var(--border)", borderRadius: "4px", overflow: "hidden" }}>
                     <div style={{ height: "100%", width: `${pct}%`, background: "var(--accent)", borderRadius: "4px" }} />
@@ -106,7 +107,7 @@ export default function ReportsPage() {
             })}
             <div style={{ borderTop: "1px dashed var(--border)", paddingTop: "12px", marginTop: "12px", display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: "16px" }}>
               <span>Total Revenue</span>
-              <span style={{ color: "var(--success)" }}>${calculateTotalSales().toFixed(2)}</span>
+              <span style={{ color: "var(--success)" }}>{formatCurrency(calculateTotalSales())}</span>
             </div>
           </div>
         </div>
@@ -124,9 +125,9 @@ export default function ReportsPage() {
                   <th>Cashier Profile</th>
                   <th>Employee Code</th>
                   <th>Bills Checked</th>
-                  <th>Total Sales ($)</th>
-                  <th>Avg Ticket ($)</th>
-                  <th>Total Discounts ($)</th>
+                  <th>Total Sales (₹)</th>
+                  <th>Avg Ticket (₹)</th>
+                  <th>Total Discounts (₹)</th>
                 </tr>
               </thead>
               <tbody>
@@ -144,9 +145,9 @@ export default function ReportsPage() {
                         <span className="badge badge-info">{cash.employeeCode}</span>
                       </td>
                       <td>{cash.billsProcessed}</td>
-                      <td style={{ fontWeight: 700, color: "var(--success)" }}>${cash.revenue?.toFixed(2)}</td>
-                      <td>${cash.averageBillValue?.toFixed(2)}</td>
-                      <td style={{ color: "var(--danger)" }}>-${cash.totalDiscount?.toFixed(2)}</td>
+                      <td style={{ fontWeight: 700, color: "var(--success)" }}>{formatCurrency(cash.revenue)}</td>
+                      <td>{formatCurrency(cash.averageBillValue)}</td>
+                      <td style={{ color: "var(--danger)" }}>-{formatCurrency(cash.totalDiscount)}</td>
                     </tr>
                   ))
                 )}

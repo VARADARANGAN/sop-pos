@@ -50,17 +50,21 @@ const productSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 0,
+      max: 999999,
     },
 
     sellingPrice: {
       type: Number,
       required: true,
       min: 0,
+      max: 999999,
     },
 
     gst: {
       type: Number,
       default: 0,
+      min: 0,
+      max: 100,
     },
 
     unit: {
@@ -111,11 +115,13 @@ const productSchema = new mongoose.Schema(
           type: Number,
           required: true,
           min: 0,
+          max: 999999,
         },
         costPrice: {
           type: Number,
           required: true,
           min: 0,
+          max: 999999,
         },
         barcode: {
           type: String,

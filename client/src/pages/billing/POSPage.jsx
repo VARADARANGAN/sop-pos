@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Search, ShoppingCart, UserPlus, Save, ClipboardList, CreditCard, Receipt, Plus, Minus, Trash2 } from "lucide-react";
+import { formatCurrency } from "../../utils/formatters";
 import "./POSPage.css";
 
 export default function POSPage() {
@@ -93,10 +94,23 @@ export default function POSPage() {
   };
 
   const calculateTax = () => {
-    // 5% standard GST
+    // Calculate per-item tax based on product.gst
+    let totalTax = 0;
+    cart.forEach(item => {
+      const itemSub = item.price * item.quantity;
+      const itemGstRate = item.gst || 0;
+      totalTax += (itemSub * itemGstRate) / 100;
+    });
+
+    // Pro-rata reduction if order discount exists
     const sub = calculateSubtotal();
-    const disc = calculateDiscount();
-    return (sub - disc) * 0.05;
+    if (sub > 0) {
+      const disc = calculateDiscount();
+      const discountRatio = disc / sub;
+      totalTax = totalTax * (1 - discountRatio);
+    }
+    
+    return totalTax;
   };
 
   const calculateGrandTotal = () => {
@@ -111,7 +125,7 @@ export default function POSPage() {
       setActiveProduct(product);
       setShowVariantModal(true);
     } else {
-      addToCartState(product, null, product.sellingPrice, product.costPrice, product.productName, "");
+      addToCartState(product, null, product.sellingPrice, product.costPrice, product.productName, "", product.gst);
     }
   };
 
@@ -122,12 +136,13 @@ export default function POSPage() {
       variant.price,
       variant.costPrice,
       activeProduct.productName,
-      variant.name
+      variant.name,
+      activeProduct.gst
     );
     setShowVariantModal(false);
   };
 
-  const addToCartState = (product, variantId, price, costPrice, name, variantName) => {
+  const addToCartState = (product, variantId, price, costPrice, name, variantName, gst = 0) => {
     const existingIndex = cart.findIndex(
       item => item.productId === product._id && item.variantId === variantId
     );
@@ -144,9 +159,10 @@ export default function POSPage() {
           variantId,
           name,
           variantName,
-          quantity: 1,
           price,
           costPrice,
+          gst,
+          quantity: 1,
         },
       ]);
     }
@@ -415,7 +431,7 @@ export default function POSPage() {
               <div className="product-card-body">
                 <h4 className="prod-name">{p.productName}</h4>
                 <span className="prod-code">{p.productCode}</span>
-                <span className="prod-price">${p.sellingPrice?.toFixed(2)}</span>
+                <span className="prod-price">{formatCurrency(p.sellingPrice)}</span>
               </div>
             </div>
           ))}
@@ -449,7 +465,7 @@ export default function POSPage() {
                 <div className="item-details">
                   <span className="item-name">{item.name}</span>
                   {item.variantName && <span className="item-size">({item.variantName})</span>}
-                  <span className="item-unit-price">${item.price?.toFixed(2)}</span>
+                  <span className="item-unit-price">{formatCurrency(item.price)}</span>
                 </div>
                 <div className="item-qty-controls">
                   <button onClick={() => updateCartQuantity(index, -1)}>
@@ -460,7 +476,7 @@ export default function POSPage() {
                     <Plus style={{ width: "12px", height: "12px" }} />
                   </button>
                 </div>
-                <span className="item-row-total">${(item.price * item.quantity).toFixed(2)}</span>
+                <span className="item-row-total">{formatCurrency(item.price * item.quantity)}</span>
               </div>
             ))
           )}
@@ -474,7 +490,7 @@ export default function POSPage() {
               {heldOrders.map((ho) => (
                 <button key={ho._id} className="held-order-pill" onClick={() => handleResumeOrder(ho)}>
                   <ClipboardList style={{ width: "12px", height: "12px" }} />
-                  Ref: {ho.holdReference} (${ho.grandTotal?.toFixed(2)})
+                  Ref: {ho.holdReference} ({formatCurrency(ho.grandTotal)})
                 </button>
               ))}
             </div>
@@ -485,7 +501,7 @@ export default function POSPage() {
         <div className="billing-summary">
           <div className="summary-row">
             <span>Subtotal</span>
-            <span>${calculateSubtotal().toFixed(2)}</span>
+            <span>{formatCurrency(calculateSubtotal())}</span>
           </div>
           <div className="summary-row">
             <span>Discount (%)</span>
@@ -500,11 +516,11 @@ export default function POSPage() {
           </div>
           <div className="summary-row">
             <span>GST Tax (5%)</span>
-            <span>${calculateTax().toFixed(2)}</span>
+            <span>{formatCurrency(calculateTax())}</span>
           </div>
           <div className="summary-row grand-total-row">
             <span>Grand Total</span>
-            <span>${calculateGrandTotal().toFixed(2)}</span>
+            <span>{formatCurrency(calculateGrandTotal())}</span>
           </div>
 
           <button className="btn btn-primary checkout-btn" onClick={openCheckout} disabled={cart.length === 0}>
@@ -533,7 +549,7 @@ export default function POSPage() {
                   onClick={() => handleVariantSelect(v)}
                 >
                   <span>{v.name}</span>
-                  <span>${v.price?.toFixed(2)}</span>
+                  <span>{formatCurrency(v.price)}</span>
                 </button>
               ))}
             </div>
@@ -703,14 +719,14 @@ export default function POSPage() {
                       </div>
                     ))}
                     <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", fontWeight: 700, fontSize: "14px" }}>
-                      <span>Grand Total: ${calculateGrandTotal().toFixed(2)}</span>
-                      <span>Total Input: ${payments.reduce((sum, p) => sum + p.amount, 0).toFixed(2)}</span>
+                      <span>Grand Total: {formatCurrency(calculateGrandTotal())}</span>
+                      <span>Total Input: {formatCurrency(payments.reduce((sum, p) => sum + p.amount, 0))}</span>
                     </div>
                   </div>
                 ) : (
                   <div style={{ padding: "10px", background: "rgba(245,158,11,0.05)", border: "1px solid rgba(245,158,11,0.1)", borderRadius: "6px" }}>
                     <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--warning)" }}>
-                      Bill will be split into {splitCount} equal portions of ${(calculateGrandTotal() / splitCount).toFixed(2)} each. Cashiers can record payment methods on each separately.
+                      Bill will be split into {splitCount} equal portions of {formatCurrency(calculateGrandTotal() / splitCount)} each. Cashiers can record payment methods on each separately.
                     </span>
                   </div>
                 )}
@@ -748,9 +764,9 @@ export default function POSPage() {
                     <div>
                       {item.name} {item.variantName ? `(${item.variantName})` : ""}
                       <br />
-                      x{item.quantity} @ ${item.price?.toFixed(2)}
+                      x{item.quantity} @ {formatCurrency(item.price)}
                     </div>
-                    <div>${item.total?.toFixed(2)}</div>
+                    <div>{formatCurrency(item.total)}</div>
                   </div>
                 ))}
               </div>
@@ -758,21 +774,21 @@ export default function POSPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: "4px", borderBottom: "1px dashed #000", paddingBottom: "8px", marginBottom: "8px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <span>Subtotal</span>
-                  <span>${completedOrder.subtotal?.toFixed(2)}</span>
+                  <span>{formatCurrency(completedOrder.subtotal)}</span>
                 </div>
                 {completedOrder.discount > 0 && (
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <span>Discount</span>
-                    <span>-${completedOrder.discount?.toFixed(2)}</span>
+                    <span>-{formatCurrency(completedOrder.discount)}</span>
                   </div>
                 )}
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <span>Tax (5% GST)</span>
-                  <span>${completedOrder.tax?.toFixed(2)}</span>
+                  <span>{formatCurrency(completedOrder.tax)}</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, fontSize: "14px" }}>
                   <span>GRAND TOTAL</span>
-                  <span>${completedOrder.grandTotal?.toFixed(2)}</span>
+                  <span>{formatCurrency(completedOrder.grandTotal)}</span>
                 </div>
               </div>
 
@@ -781,7 +797,7 @@ export default function POSPage() {
                 {completedOrder.payments?.map((p, idx) => (
                   <div key={idx} style={{ display: "flex", justifyContent: "space-between" }}>
                     <span>{p.method}</span>
-                    <span>${p.amount?.toFixed(2)}</span>
+                    <span>{formatCurrency(p.amount)}</span>
                   </div>
                 ))}
               </div>

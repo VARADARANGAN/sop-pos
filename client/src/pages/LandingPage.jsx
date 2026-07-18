@@ -140,19 +140,19 @@ export default function LandingPage() {
                   <div className="mock-menu-grid">
                     <div className="mock-item-card">
                       <h5>Espresso Double</h5>
-                      <span>$4.50</span>
+                      <span>₹4.50</span>
                     </div>
                     <div className="mock-item-card">
                       <h5>Cappuccino</h5>
-                      <span>$5.20</span>
+                      <span>₹5.20</span>
                     </div>
                     <div className="mock-item-card">
                       <h5>Iced Latte</h5>
-                      <span>$6.00</span>
+                      <span>₹6.00</span>
                     </div>
                     <div className="mock-item-card">
                       <h5>Flat White</h5>
-                      <span>$5.50</span>
+                      <span>₹5.50</span>
                     </div>
                   </div>
                 </div>
@@ -161,21 +161,21 @@ export default function LandingPage() {
                   <div className="mock-cart-items">
                     <div className="mock-cart-item">
                       <span>Cappuccino (Large)</span>
-                      <span>1x $5.20</span>
+                      <span>1x ₹5.20</span>
                     </div>
                     <div className="mock-cart-item">
                       <span>Iced Latte (Regular)</span>
-                      <span>2x $12.00</span>
+                      <span>2x ₹12.00</span>
                     </div>
                   </div>
                   <div className="mock-cart-totals">
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
                       <span>Subtotal</span>
-                      <span>$17.20</span>
+                      <span>₹17.20</span>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700, color: "var(--text-h)" }}>
                       <span>Total Due</span>
-                      <span>$18.06</span>
+                      <span>₹18.06</span>
                     </div>
                   </div>
                   <button className="btn btn-primary" style={{ width: "100%", padding: "6px", fontSize: "11px", marginTop: "10px" }} onClick={handleCTA}>Checkout Order</button>
@@ -213,16 +213,16 @@ export default function LandingPage() {
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", margin: "6px 0", fontSize: "12px" }}>
                     <span>1x Classic Burger (Double Cheese)</span>
-                    <span>$12.50</span>
+                    <span>₹12.50</span>
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", margin: "6px 0", fontSize: "12px" }}>
                     <span>1x French Fries (Large)</span>
-                    <span>$5.50</span>
+                    <span>₹5.50</span>
                   </div>
                   <div style={{ borderTop: "1px dashed var(--border)", paddingTop: "8px", marginTop: "8px", fontSize: "12px" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 700 }}>
                       <span>Total Settled</span>
-                      <span>$18.90</span>
+                      <span>₹18.90</span>
                     </div>
                     <div style={{ display: "flex", justifyContent: "space-between", color: "var(--primary)", marginTop: "4px" }}>
                       <span>Paid: Card/UPI Split</span>

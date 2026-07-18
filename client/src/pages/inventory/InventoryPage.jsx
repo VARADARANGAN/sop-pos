@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Package, Plus, MoveHorizontal, AlertTriangle, ShieldCheck, HelpCircle } from "lucide-react";
+import { formatCurrency } from "../../utils/formatters";
+import "./InventoryPage.css";
 
 export default function InventoryPage() {
   const { apiRequest, user: currentUser, hasRole } = useAuth();
@@ -412,7 +414,7 @@ export default function InventoryPage() {
                     <select className="form-control" value={initVariantId} onChange={(e) => setInitVariantId(e.target.value)} required>
                       <option value="">-- Choose Variant --</option>
                       {products.find(p => p._id === initProductId)?.variants.map(v => (
-                        <option key={v._id} value={v._id}>{v.name} (${v.price})</option>
+                        <option key={v._id} value={v._id}>{v.name} ({formatCurrency(v.price)})</option>
                       ))}
                     </select>
                   </div>
@@ -494,7 +496,7 @@ export default function InventoryPage() {
                     <select className="form-control" value={adjVariantId} onChange={(e) => setAdjVariantId(e.target.value)} required>
                       <option value="">-- Choose Variant --</option>
                       {products.find(p => p._id === adjItemId)?.variants.map(v => (
-                        <option key={v._id} value={v._id}>{v.name} (${v.price})</option>
+                        <option key={v._id} value={v._id}>{v.name} ({formatCurrency(v.price)})</option>
                       ))}
                     </select>
                   </div>
@@ -606,7 +608,7 @@ export default function InventoryPage() {
                     <select className="form-control" value={tfVariantId} onChange={(e) => setTfVariantId(e.target.value)} required>
                       <option value="">-- Choose Variant --</option>
                       {products.find(p => p._id === tfItemId)?.variants.map(v => (
-                        <option key={v._id} value={v._id}>{v.name} (${v.price})</option>
+                        <option key={v._id} value={v._id}>{v.name} ({formatCurrency(v.price)})</option>
                       ))}
                     </select>
                   </div>

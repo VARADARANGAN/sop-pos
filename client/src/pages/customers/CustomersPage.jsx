@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { UsersRound, Plus, Phone, Mail, FileClock, History } from "lucide-react";
+import { formatCurrency } from "../../utils/formatters";
 
 export default function CustomersPage() {
   const { apiRequest, user: currentUser } = useAuth();
@@ -180,7 +181,7 @@ export default function CustomersPage() {
                   <div key={order._id} style={{ border: "1px solid var(--border)", borderRadius: "8px", padding: "14px", background: "rgba(255,255,255,0.01)" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
                       <span style={{ fontWeight: 700, fontSize: "13px", color: "var(--text-h)" }}>{order.orderNumber}</span>
-                      <span className="badge badge-success">${order.grandTotal?.toFixed(2)}</span>
+                      <span className="badge badge-success">{formatCurrency(order.grandTotal)}</span>
                     </div>
                     <div style={{ fontSize: "11px", color: "var(--secondary)", display: "flex", justifyContent: "space-between", borderBottom: "1px dashed var(--border)", paddingBottom: "6px", marginBottom: "6px" }}>
                       <span>Date: {new Date(order.createdAt).toLocaleDateString()}</span>

@@ -24,36 +24,42 @@ const inventorySchema = new mongoose.Schema(
       required: true,
       default: 0,
       min: 0,
+      max: 999999,
     },
 
     minimumStock: {
       type: Number,
       default: 10,
       min: 0,
+      max: 999999,
     },
 
     maximumStock: {
       type: Number,
       default: 1000,
       min: 0,
+      max: 999999,
     },
 
     reorderLevel: {
       type: Number,
       default: 20,
       min: 0,
+      max: 999999,
     },
 
     reservedStock: {
       type: Number,
       default: 0,
       min: 0,
+      max: 999999,
     },
 
     availableStock: {
       type: Number,
       default: 0,
       min: 0,
+      max: 999999,
     },
 
     lastStockUpdated: {

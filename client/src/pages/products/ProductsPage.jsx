@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Coffee, Plus, Edit, Trash2, Layers, Tag } from "lucide-react";
+import { formatCurrency } from "../../utils/formatters";
 
 export default function ProductsPage() {
   const { apiRequest, user: currentUser } = useAuth();
@@ -227,7 +228,7 @@ export default function ProductsPage() {
                       <div style={{ fontWeight: 600, color: "var(--text-h)" }}>{p.productName}</div>
                       {p.variants && p.variants.length > 0 && (
                         <div style={{ fontSize: "11px", color: "var(--accent)", marginTop: "4px" }}>
-                          Variants: {p.variants.map((v) => `${v.name} ($${v.price})`).join(", ")}
+                          Variants: {p.variants.map((v) => `${v.name} (${formatCurrency(v.price)})`).join(", ")}
                         </div>
                       )}
                     </td>
@@ -250,8 +251,8 @@ export default function ProductsPage() {
                         <span className="badge badge-success">Single</span>
                       )}
                     </td>
-                    <td>${p.costPrice?.toFixed(2)}</td>
-                    <td>${p.sellingPrice?.toFixed(2)}</td>
+                    <td>{formatCurrency(p.costPrice)}</td>
+                    <td>{formatCurrency(p.sellingPrice)}</td>
                     <td style={{ textAlign: "right" }}>
                       <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
                         <button className="btn btn-secondary" style={{ padding: "6px" }} onClick={() => openEditModal(p)}>
@@ -355,6 +356,8 @@ export default function ProductsPage() {
                     <input
                       type="number"
                       step="0.01"
+                      min="0"
+                      max="999999"
                       className="form-control"
                       value={costPrice}
                       onChange={(e) => setCostPrice(parseFloat(e.target.value) || 0)}
@@ -367,6 +370,8 @@ export default function ProductsPage() {
                     <input
                       type="number"
                       step="0.01"
+                      min="0"
+                      max="999999"
                       className="form-control"
                       value={sellingPrice}
                       onChange={(e) => setSellingPrice(parseFloat(e.target.value) || 0)}
@@ -464,6 +469,8 @@ export default function ProductsPage() {
                           <input
                             type="number"
                             step="0.01"
+                            min="0"
+                            max="999999"
                             className="form-control"
                             placeholder="Cost"
                             value={v.costPrice}
@@ -473,6 +480,8 @@ export default function ProductsPage() {
                           <input
                             type="number"
                             step="0.01"
+                            min="0"
+                            max="999999"
                             className="form-control"
                             placeholder="Sell"
                             value={v.price}

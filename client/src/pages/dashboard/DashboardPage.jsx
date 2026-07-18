@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { DollarSign, ShoppingCart, AlertTriangle, Flame, AlertCircle } from "lucide-react";
+import { formatCurrency } from "../../utils/formatters";
 import "./DashboardPage.css";
 
 export default function DashboardPage() {
@@ -43,7 +44,7 @@ export default function DashboardPage() {
           </div>
           <div className="metric-info">
             <span className="metric-title">Today's Revenue</span>
-            <h3 className="metric-value">${stats.todayRevenue?.toFixed(2) || "0.00"}</h3>
+            <h3 className="metric-value">{formatCurrency(stats.todayRevenue || 0)}</h3>
           </div>
         </div>
 
@@ -132,7 +133,7 @@ export default function DashboardPage() {
                     <h4>{prod.productName}</h4>
                     <span>{prod.quantitySold} units sold</span>
                   </div>
-                  <div className="item-revenue">${prod.revenue?.toFixed(2)}</div>
+                  <div className="item-revenue">{formatCurrency(prod.revenue)}</div>
                 </li>
               ))}
             </ul>

@@ -15,6 +15,68 @@ class BillingService {
   }
 
   /**
+   * Helper: Recalculate order items and totals from the database
+   */
+  async recalculateOrderTotals(items, providedDiscount, session) {
+    let subtotal = 0;
+    let tax = 0;
+    const validatedItems = [];
+
+    for (const item of items) {
+      const product = await Product.findOne({ _id: item.productId, isDeleted: false }).session(session);
+      if (!product) throw new Error(`Product not found: ${item.name}`);
+
+      let price = product.sellingPrice;
+      let costPrice = product.costPrice;
+
+      if (item.variantId) {
+        const variant = product.variants.id(item.variantId);
+        if (!variant) throw new Error(`Variant not found for product: ${item.name}`);
+        price = variant.price;
+        costPrice = variant.costPrice;
+      }
+
+      const itemSubtotal = price * item.quantity;
+      const itemGstRate = product.gst || 0;
+      
+      // Calculate item tax (distributed if order has a discount)
+      const itemTax = (itemSubtotal * itemGstRate) / 100;
+
+      subtotal += itemSubtotal;
+      tax += itemTax;
+
+      validatedItems.push({
+        ...item,
+        price,
+        costPrice,
+        subtotal: itemSubtotal,
+        tax: itemTax,
+        discount: 0, 
+        total: itemSubtotal + itemTax,
+      });
+    }
+
+    const discount = providedDiscount || 0;
+    // Adjust total tax if discount is applied at order level (pro-rata could be complex, simple approach: reduce total tax proportionally)
+    const discountRatio = subtotal > 0 ? discount / subtotal : 0;
+    const finalTax = tax * (1 - discountRatio);
+    const grandTotal = subtotal - discount + finalTax;
+
+    return {
+      items: validatedItems,
+      subtotal,
+      tax: finalTax,
+      discount,
+      grandTotal,
+    };
+  }
+  async generateOrderNumber() {
+    const timestamp = Date.now();
+    const random = Math.floor(1000 + Math.random() * 9000);
+    return `ORD-${timestamp}-${random}`;
+  }
+
+  /**
    * Helper: Process stock deduction (atomic)
    */
   async deductStock(branchId, items, session) {
@@ -85,10 +147,18 @@ class BillingService {
       orderData.orderNumber = await this.generateOrderNumber();
       orderData.status = "COMPLETED";
 
+      // Recalculate totals from DB
+      const recalculated = await this.recalculateOrderTotals(orderData.items, orderData.discount, session);
+      orderData.items = recalculated.items;
+      orderData.subtotal = recalculated.subtotal;
+      orderData.tax = recalculated.tax;
+      orderData.grandTotal = recalculated.grandTotal;
+      orderData.discount = recalculated.discount;
+
       // 1. Verify payments match grandTotal
       const totalPaid = orderData.payments.reduce((sum, p) => sum + p.amount, 0);
       if (Math.abs(totalPaid - orderData.grandTotal) > 0.01) {
-        throw new Error(`Payment mismatch: Total paid is ${totalPaid}, but grand total is ${orderData.grandTotal}`);
+        throw new Error(`Payment mismatch: Total paid is ${totalPaid}, but required is ${orderData.grandTotal.toFixed(2)} based on latest product prices. Please refresh your cart.`);
       }
 
       // 2. Perform Stock Deductions
@@ -213,12 +283,15 @@ class BillingService {
         throw new Error("Access denied: Held order belongs to another branch");
       }
 
+      // Recalculate totals
+      const recalculated = await this.recalculateOrderTotals(checkoutData.items || order.items, checkoutData.discount || order.discount, session);
+
       // Update fields
-      order.items = checkoutData.items || order.items;
-      order.subtotal = checkoutData.subtotal || order.subtotal;
-      order.tax = checkoutData.tax || order.tax;
-      order.discount = checkoutData.discount || order.discount;
-      order.grandTotal = checkoutData.grandTotal || order.grandTotal;
+      order.items = recalculated.items;
+      order.subtotal = recalculated.subtotal;
+      order.tax = recalculated.tax;
+      order.discount = recalculated.discount;
+      order.grandTotal = recalculated.grandTotal;
       order.payments = checkoutData.payments;
       order.customerId = checkoutData.customerId || order.customerId;
       order.status = "COMPLETED";
@@ -227,7 +300,7 @@ class BillingService {
       // Verify payments match grandTotal
       const totalPaid = order.payments.reduce((sum, p) => sum + p.amount, 0);
       if (Math.abs(totalPaid - order.grandTotal) > 0.01) {
-        throw new Error(`Payment mismatch: Total paid is ${totalPaid}, but grand total is ${order.grandTotal}`);
+        throw new Error(`Payment mismatch: Total paid is ${totalPaid}, but required is ${order.grandTotal.toFixed(2)} based on latest product prices. Please refresh your cart.`);
       }
 
       // Perform stock deductions
@@ -293,16 +366,19 @@ class BillingService {
       const createdOrders = [];
 
       for (const bill of bills) {
+        // Recalculate totals for split bill
+        const recalculated = await this.recalculateOrderTotals(bill.items, bill.discount, session);
+
         const billOrderData = {
           orderNumber: await this.generateOrderNumber(),
           branchId: parentOrder.branchId,
           cashierId: user.id,
           customerId: bill.customerId || parentOrder.customerId,
-          items: bill.items,
-          subtotal: bill.subtotal,
-          tax: bill.tax,
-          discount: bill.discount,
-          grandTotal: bill.grandTotal,
+          items: recalculated.items,
+          subtotal: recalculated.subtotal,
+          tax: recalculated.tax,
+          discount: recalculated.discount,
+          grandTotal: recalculated.grandTotal,
           status: "COMPLETED",
           payments: bill.payments,
         };
@@ -310,7 +386,7 @@ class BillingService {
         // 1. Verify payments
         const totalPaid = billOrderData.payments.reduce((sum, p) => sum + p.amount, 0);
         if (Math.abs(totalPaid - billOrderData.grandTotal) > 0.01) {
-          throw new Error(`Payment mismatch on split bill: Paid ${totalPaid}, required ${billOrderData.grandTotal}`);
+          throw new Error(`Payment mismatch on split bill: Paid ${totalPaid}, required ${billOrderData.grandTotal.toFixed(2)}`);
         }
 
         // 2. Stock deductions
