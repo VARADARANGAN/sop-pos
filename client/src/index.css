@@ -1,29 +1,32 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* Color Palette - Premium Restaurant Warm Colors (Light Theme) */
-  --bg: #fff8f1; /* Soft Cream */
-  --surface: #ffffff; /* Pure White */
-  --text: #4a4641; /* Muted Warm Charcoal */
-  --text-h: #2d2a26; /* Deep Dining Charcoal */
-  --border: #f3ede4; /* Warm Light Border */
+  /* CulinaFlow SaaS Palette */
+  --bg: #FFF8F2; /* Warm Cream */
+  --surface: #FFFFFF; /* Pure White */
+  --text: #4B5563; /* Subtle Gray */
+  --text-h: #1F2937; /* Deep Slate */
+  --border: #E5E7EB; /* Clean Border */
   
-  --primary: #f97316; /* Burnt Orange */
-  --primary-hover: #ea580c;
-  --primary-bg: rgba(249, 115, 22, 0.06);
-  --primary-border: rgba(249, 115, 22, 0.15);
+  --primary: #FF6B35; /* Vibrant Orange */
+  --primary-hover: #E85A2A;
+  --primary-bg: rgba(255, 107, 53, 0.08);
+  --primary-border: rgba(255, 107, 53, 0.2);
   
-  --accent: #22c55e; /* Fresh Green */
-  --accent-hover: #16a34a;
-  --accent-bg: rgba(34, 197, 94, 0.06);
-  --accent-border: rgba(34, 197, 94, 0.15);
+  --accent: #06D6A0; /* Fresh Mint */
+  --accent-hover: #05C290;
+  --accent-bg: rgba(6, 214, 160, 0.08);
+  --accent-border: rgba(6, 214, 160, 0.2);
 
-  --success: #22c55e;
-  --success-bg: rgba(34, 197, 94, 0.08);
-  --warning: #f59e0b;
-  --warning-bg: rgba(245, 158, 11, 0.08);
-  --danger: #ef4444;
-  --danger-bg: rgba(239, 68, 68, 0.08);
+  --secondary: #FFB703; /* Warm Yellow */
+  --secondary-bg: rgba(255, 183, 3, 0.08);
+
+  --success: #06D6A0;
+  --success-bg: rgba(6, 214, 160, 0.1);
+  --warning: #FFB703;
+  --warning-bg: rgba(255, 183, 3, 0.1);
+  --danger: #EF4444;
+  --danger-bg: rgba(239, 68, 68, 0.1);
   
   --code-bg: #f8f1e5;
   --shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.03), 0 2px 4px -2px rgba(249, 115, 22, 0.03), 0 10px 15px -3px rgba(249, 115, 22, 0.01);
@@ -42,29 +45,32 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    /* Color Palette - Premium Restaurant Warm Colors (Dark Theme) */
-    --bg: #14110f; /* Deep Obsidian Coffee */
-    --surface: #1c1816; /* Dark Chocolate Surface */
-    --text: #a8a29e; /* Muted Almond Text */
-    --text-h: #fafaf9; /* Creamy White Header */
-    --border: #2e2520; /* Dark Roast Border */
+    /* CulinaFlow Dark Theme */
+    --bg: #111827; /* Dark Slate Background */
+    --surface: #1F2937; /* Dark Card Surface */
+    --text: #9CA3AF; /* Muted Light Gray */
+    --text-h: #F9FAFB; /* Pure White Header */
+    --border: #374151; /* Dark Gray Border */
     
-    --primary: #f97316;
-    --primary-hover: #fb923c;
-    --primary-bg: rgba(249, 115, 22, 0.1);
-    --primary-border: rgba(249, 115, 22, 0.25);
+    --primary: #FF6B35;
+    --primary-hover: #FF8559;
+    --primary-bg: rgba(255, 107, 53, 0.15);
+    --primary-border: rgba(255, 107, 53, 0.3);
     
-    --accent: #22c55e;
-    --accent-hover: #4ade80;
-    --accent-bg: rgba(34, 197, 94, 0.1);
-    --accent-border: rgba(34, 197, 94, 0.25);
+    --accent: #06D6A0;
+    --accent-hover: #38E0B3;
+    --accent-bg: rgba(6, 214, 160, 0.15);
+    --accent-border: rgba(6, 214, 160, 0.3);
     
-    --success: #22c55e;
-    --success-bg: rgba(34, 197, 94, 0.1);
-    --warning: #fbbf24;
-    --warning-bg: rgba(251, 191, 36, 0.1);
-    --danger: #f87171;
-    --danger-bg: rgba(248, 113, 113, 0.1);
+    --secondary: #FFB703;
+    --secondary-bg: rgba(255, 183, 3, 0.15);
+
+    --success: #06D6A0;
+    --success-bg: rgba(6, 214, 160, 0.15);
+    --warning: #FFB703;
+    --warning-bg: rgba(255, 183, 3, 0.15);
+    --danger: #EF4444;
+    --danger-bg: rgba(239, 68, 68, 0.15);
 
     --code-bg: #2e2520;
     --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
@@ -73,29 +79,32 @@
 }
 
 :root[data-theme="dark"] {
-    /* Color Palette - Premium Restaurant Warm Colors (Dark Theme) */
-    --bg: #14110f; /* Deep Obsidian Coffee */
-    --surface: #1c1816; /* Dark Chocolate Surface */
-    --text: #a8a29e; /* Muted Almond Text */
-    --text-h: #fafaf9; /* Creamy White Header */
-    --border: #2e2520; /* Dark Roast Border */
+    /* CulinaFlow Dark Theme */
+    --bg: #111827; /* Dark Slate Background */
+    --surface: #1F2937; /* Dark Card Surface */
+    --text: #9CA3AF; /* Muted Light Gray */
+    --text-h: #F9FAFB; /* Pure White Header */
+    --border: #374151; /* Dark Gray Border */
     
-    --primary: #f97316;
-    --primary-hover: #fb923c;
-    --primary-bg: rgba(249, 115, 22, 0.1);
-    --primary-border: rgba(249, 115, 22, 0.25);
+    --primary: #FF6B35;
+    --primary-hover: #FF8559;
+    --primary-bg: rgba(255, 107, 53, 0.15);
+    --primary-border: rgba(255, 107, 53, 0.3);
     
-    --accent: #22c55e;
-    --accent-hover: #4ade80;
-    --accent-bg: rgba(34, 197, 94, 0.1);
-    --accent-border: rgba(34, 197, 94, 0.25);
+    --accent: #06D6A0;
+    --accent-hover: #38E0B3;
+    --accent-bg: rgba(6, 214, 160, 0.15);
+    --accent-border: rgba(6, 214, 160, 0.3);
     
-    --success: #22c55e;
-    --success-bg: rgba(34, 197, 94, 0.1);
-    --warning: #fbbf24;
-    --warning-bg: rgba(251, 191, 36, 0.1);
-    --danger: #f87171;
-    --danger-bg: rgba(248, 113, 113, 0.1);
+    --secondary: #FFB703;
+    --secondary-bg: rgba(255, 183, 3, 0.15);
+
+    --success: #06D6A0;
+    --success-bg: rgba(6, 214, 160, 0.15);
+    --warning: #FFB703;
+    --warning-bg: rgba(255, 183, 3, 0.15);
+    --danger: #EF4444;
+    --danger-bg: rgba(239, 68, 68, 0.15);
 
     --code-bg: #2e2520;
     --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
@@ -148,4 +157,102 @@ a {
 
 a:hover {
   color: var(--primary-hover);
+}
+/* --- Modern SaaS Components --- */
+.custom-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+}
+
+.custom-table th {
+  background: var(--bg);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.custom-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-h);
+  vertical-align: middle;
+}
+
+.custom-table tr {
+  transition: background 0.2s;
+}
+
+.custom-table tbody tr:hover {
+  background: var(--bg);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-h);
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-bg);
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-h);
+  font-size: 0.9rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text-h);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  border-color: var(--text);
+  background: var(--bg);
 }
