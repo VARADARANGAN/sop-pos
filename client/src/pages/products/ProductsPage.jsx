@@ -129,6 +129,16 @@ export default function ProductsPage() {
     e.preventDefault();
     setError(null);
 
+    if (!hasVariants && sellingPrice <= 0) {
+      alert("Product price must be greater than ₹0.");
+      return;
+    }
+
+    if (hasVariants && variants.some(v => v.price <= 0)) {
+      alert("Variant price must be greater than ₹0.");
+      return;
+    }
+
     const payload = {
       productName,
       description,
@@ -370,7 +380,7 @@ export default function ProductsPage() {
                     <input
                       type="number"
                       step="0.01"
-                      min="0"
+                      min="0.01"
                       max="999999"
                       className="form-control"
                       value={sellingPrice}
@@ -480,7 +490,7 @@ export default function ProductsPage() {
                           <input
                             type="number"
                             step="0.01"
-                            min="0"
+                            min="0.01"
                             max="999999"
                             className="form-control"
                             placeholder="Sell"

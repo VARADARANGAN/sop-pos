@@ -56,7 +56,7 @@ const productSchema = new mongoose.Schema(
     sellingPrice: {
       type: Number,
       required: true,
-      min: 0,
+      min: 0.01,
       max: 999999,
     },
 
@@ -114,7 +114,7 @@ const productSchema = new mongoose.Schema(
         price: {
           type: Number,
           required: true,
-          min: 0,
+          min: 0.01,
           max: 999999,
         },
         costPrice: {

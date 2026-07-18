@@ -36,6 +36,10 @@ class BillingService {
         costPrice = variant.costPrice;
       }
 
+      if (price <= 0) {
+        throw new Error(`Product price must be greater than ₹0. (${item.name})`);
+      }
+
       const itemSubtotal = price * item.quantity;
       const itemGstRate = product.gst || 0;
       

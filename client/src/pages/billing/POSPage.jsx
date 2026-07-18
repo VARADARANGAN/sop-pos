@@ -143,6 +143,11 @@ export default function POSPage() {
   };
 
   const addToCartState = (product, variantId, price, costPrice, name, variantName, gst = 0) => {
+    if (price <= 0) {
+      alert("Product price must be greater than ₹0.");
+      return;
+    }
+
     const existingIndex = cart.findIndex(
       item => item.productId === product._id && item.variantId === variantId
     );
