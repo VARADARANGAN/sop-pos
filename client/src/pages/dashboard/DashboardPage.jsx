@@ -1,11 +1,12 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { 
   DollarSign, ShoppingCart, AlertTriangle, Package, 
   TrendingUp, Activity, BarChart3, Clock, AlertCircle
 } from "lucide-react";
 import { formatCurrency } from "../../utils/formatters";
-import "./DashboardPage.css";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function DashboardPage() {
   const { apiRequest, user } = useAuth();
@@ -27,21 +28,22 @@ export default function DashboardPage() {
       }
     };
     fetchStats();
-  }, []);
+  }, [apiRequest]);
 
   if (loading) {
     return (
-      <div className="dashboard-skeleton">
-        <div className="skeleton-header"></div>
-        <div className="skeleton-kpis">
-          <div className="skeleton-card"></div>
-          <div className="skeleton-card"></div>
-          <div className="skeleton-card"></div>
-          <div className="skeleton-card"></div>
+      <div className="space-y-6">
+        <div className="h-16 bg-muted/50 rounded-lg animate-pulse"></div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardHeader className="h-24 bg-muted/30"></CardHeader>
+            </Card>
+          ))}
         </div>
-        <div className="skeleton-grid">
-          <div className="skeleton-panel"></div>
-          <div className="skeleton-panel"></div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card className="h-[300px] animate-pulse bg-muted/20"></Card>
+          <Card className="h-[300px] animate-pulse bg-muted/20"></Card>
         </div>
       </div>
     );
@@ -49,172 +51,217 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <div className="dashboard-error">
-        <AlertCircle size={32} />
-        <h4>Failed to load dashboard</h4>
-        <p>{error}</p>
+      <div className="flex flex-col items-center justify-center p-12 text-center rounded-xl bg-destructive/5 border border-destructive/20">
+        <AlertCircle className="h-10 w-10 text-destructive mb-4" />
+        <h4 className="text-lg font-semibold text-foreground">Failed to load dashboard</h4>
+        <p className="text-muted-foreground mt-2">{error}</p>
       </div>
     );
   }
 
-  // Calculate some derived stats for UI mock representation (growth metrics, etc)
-  const avgOrderValue = stats.todayOrders > 0 ? (stats.todayRevenue / stats.todayOrders) : 0;
+  // Calculate some derived stats for UI representation (growth metrics, etc)
+  const avgOrderValue = stats?.todayOrders > 0 ? (stats.todayRevenue / stats.todayOrders) : 0;
 
   return (
-    <div className="saas-dashboard">
-      <div className="dashboard-header">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="page-title">Overview</h1>
-          <p className="page-subtitle">Welcome back, {user?.name || "Manager"}. Here's what's happening today.</p>
+          <h1 className="text-3xl font-heading font-bold tracking-tight text-foreground">Overview</h1>
+          <p className="text-muted-foreground mt-1">Welcome back, {user?.firstName || "Manager"}. Here's what's happening today.</p>
         </div>
-        <div className="header-actions">
-          <span className="badge badge-success" style={{ padding: "6px 12px", fontSize: "14px" }}>
-            <Activity size={16} /> Live Data Sync
-          </span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-sm font-medium">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            Live Data Sync
+          </div>
         </div>
       </div>
 
       {/* KPI Grid */}
-      <div className="kpi-grid">
-        <div className="kpi-card">
-          <div className="kpi-header">
-            <span className="kpi-title">Today's Revenue</span>
-            <div className="kpi-icon primary"><DollarSign size={20} /></div>
-          </div>
-          <div className="kpi-body">
-            <h3>{formatCurrency(stats.todayRevenue || 0)}</h3>
-            <span className="kpi-trend positive"><TrendingUp size={14} /> +12% from yesterday</span>
-          </div>
-        </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Today's Revenue</CardTitle>
+            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+              <DollarSign className="h-4 w-4 text-primary" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatCurrency(stats?.todayRevenue || 0)}</div>
+            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+              <TrendingUp className="h-3 w-3 text-emerald-500" />
+              <span className="text-emerald-500 font-medium">+12%</span> from yesterday
+            </p>
+          </CardContent>
+        </Card>
 
-        <div className="kpi-card">
-          <div className="kpi-header">
-            <span className="kpi-title">Total Orders</span>
-            <div className="kpi-icon secondary"><ShoppingCart size={20} /></div>
-          </div>
-          <div className="kpi-body">
-            <h3>{stats.todayOrders || 0}</h3>
-            <span className="kpi-trend positive"><TrendingUp size={14} /> +5% from yesterday</span>
-          </div>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+            <div className="h-8 w-8 rounded-full bg-secondary/10 flex items-center justify-center">
+              <ShoppingCart className="h-4 w-4 text-secondary-foreground" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.todayOrders || 0}</div>
+            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+              <TrendingUp className="h-3 w-3 text-emerald-500" />
+              <span className="text-emerald-500 font-medium">+5%</span> from yesterday
+            </p>
+          </CardContent>
+        </Card>
 
-        <div className="kpi-card">
-          <div className="kpi-header">
-            <span className="kpi-title">Avg. Order Value</span>
-            <div className="kpi-icon accent"><BarChart3 size={20} /></div>
-          </div>
-          <div className="kpi-body">
-            <h3>{formatCurrency(avgOrderValue)}</h3>
-            <span className="kpi-trend neutral">Stable across shifts</span>
-          </div>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Avg. Order Value</CardTitle>
+            <div className="h-8 w-8 rounded-full bg-accent/10 flex items-center justify-center">
+              <BarChart3 className="h-4 w-4 text-accent" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatCurrency(avgOrderValue)}</div>
+            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+              Stable across shifts
+            </p>
+          </CardContent>
+        </Card>
 
-        <div className="kpi-card">
-          <div className="kpi-header">
-            <span className="kpi-title">Low Stock Alerts</span>
-            <div className="kpi-icon warning"><AlertTriangle size={20} /></div>
-          </div>
-          <div className="kpi-body">
-            <h3>{stats.lowStockCount || 0}</h3>
-            <span className="kpi-trend negative">Requires attention</span>
-          </div>
-        </div>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Low Stock Alerts</CardTitle>
+            <div className="h-8 w-8 rounded-full bg-destructive/10 flex items-center justify-center">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats?.lowStockCount || 0}</div>
+            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+              <span className="text-destructive font-medium">Requires attention</span>
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Main Content Grid */}
-      <div className="dashboard-main-grid">
+      <div className="grid gap-4 md:grid-cols-2">
         {/* Left Column: Top Sellers */}
-        <div className="dashboard-panel">
-          <div className="panel-header">
-            <h3>Best Selling Items</h3>
-            <button className="btn-text">View All</button>
-          </div>
-          <div className="panel-body">
-            {stats.topProducts?.length === 0 ? (
-              <div className="empty-state">
-                <Package size={32} />
-                <p>No sales data available for today yet.</p>
+        <Card className="col-span-1">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="space-y-1">
+              <CardTitle>Best Selling Items</CardTitle>
+              <CardDescription>Top products by quantity sold today</CardDescription>
+            </div>
+            <Button variant="ghost" size="sm" className="h-8 text-xs">View All</Button>
+          </CardHeader>
+          <CardContent>
+            {!stats?.topProducts?.length ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
+                <Package className="h-10 w-10 mb-3 opacity-20" />
+                <p className="text-sm">No sales data available for today yet.</p>
               </div>
             ) : (
-              <div className="list-group">
-                {stats.topProducts?.map((item, index) => (
-                  <div className="list-item" key={item._id}>
-                    <div className="item-rank">{index + 1}</div>
-                    <div className="item-details">
-                      <span className="item-name">{item.productName}</span>
-                      <span className="item-meta">{item.quantitySold} units sold</span>
+              <div className="space-y-4">
+                {stats.topProducts.map((item, index) => (
+                  <div key={item._id} className="flex items-center gap-4">
+                    <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-sm font-semibold shrink-0">
+                      {index + 1}
                     </div>
-                    <div className="item-value">
+                    <div className="flex-1 space-y-1 min-w-0">
+                      <p className="text-sm font-medium leading-none truncate">{item.productName}</p>
+                      <p className="text-xs text-muted-foreground">{item.quantitySold} units sold</p>
+                    </div>
+                    <div className="font-medium text-sm">
                       {formatCurrency(item.revenue)}
                     </div>
                   </div>
                 ))}
               </div>
             )}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Right Column: Low Stock Alerts */}
-        <div className="dashboard-panel">
-          <div className="panel-header">
-            <h3>Inventory Alerts</h3>
-            <button className="btn-text">Manage Stock</button>
-          </div>
-          <div className="panel-body">
-            {stats.lowStockDetails?.length === 0 ? (
-              <div className="empty-state">
-                <AlertCircle size={32} style={{ color: "var(--success)" }} />
-                <p>All stock levels are optimal.</p>
+        <Card className="col-span-1">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="space-y-1">
+              <CardTitle>Inventory Alerts</CardTitle>
+              <CardDescription>Items running below minimum threshold</CardDescription>
+            </div>
+            <Button variant="ghost" size="sm" className="h-8 text-xs">Manage Stock</Button>
+          </CardHeader>
+          <CardContent>
+            {!stats?.lowStockDetails?.length ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
+                <AlertCircle className="h-10 w-10 mb-3 text-emerald-500/50" />
+                <p className="text-sm">All stock levels are optimal.</p>
               </div>
             ) : (
-              <div className="list-group">
-                {stats.lowStockDetails?.map((item) => (
-                  <div className="list-item warning-item" key={item._id}>
-                    <div className="item-details">
-                      <span className="item-name">{item.productId?.productName || item.name}</span>
-                      <span className="item-meta">Min Level: {item.reorderLevel} • Branch: {item.branchId?.branchName || "Main"}</span>
+              <div className="space-y-4">
+                {stats.lowStockDetails.map((item) => (
+                  <div key={item._id} className="flex items-center gap-4 p-3 rounded-lg bg-destructive/5 border border-destructive/10">
+                    <div className="h-8 w-8 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                      <AlertTriangle className="h-4 w-4 text-destructive" />
                     </div>
-                    <div className="item-badge danger">
+                    <div className="flex-1 space-y-1 min-w-0">
+                      <p className="text-sm font-medium leading-none truncate text-foreground">
+                        {item.productId?.productName || item.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        Min Level: {item.reorderLevel} • Branch: {item.branchId?.branchName || "Main"}
+                      </p>
+                    </div>
+                    <div className="text-xs font-semibold px-2 py-1 rounded bg-destructive text-destructive-foreground whitespace-nowrap">
                       {item.currentStock} {item.unit || "Left"}
                     </div>
                   </div>
                 ))}
               </div>
             )}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
       
       {/* Visual Chart Placeholder for SaaS feel */}
-      <div className="dashboard-panel full-width">
-         <div className="panel-header">
-            <h3>Sales Trends Overview</h3>
-            <div className="header-filters">
-              <span className="filter-chip active">Today</span>
-              <span className="filter-chip">7 Days</span>
-              <span className="filter-chip">30 Days</span>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-8">
+          <div className="space-y-1">
+            <CardTitle>Sales Trends Overview</CardTitle>
+            <CardDescription>Revenue trajectory over time</CardDescription>
+          </div>
+          <div className="flex items-center gap-1 p-1 bg-muted rounded-md border border-border">
+            <button className="px-3 py-1 text-xs font-medium rounded bg-background shadow-sm text-foreground">Today</button>
+            <button className="px-3 py-1 text-xs font-medium rounded text-muted-foreground hover:text-foreground">7 Days</button>
+            <button className="px-3 py-1 text-xs font-medium rounded text-muted-foreground hover:text-foreground">30 Days</button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="relative h-64 w-full border-t border-b border-border/50 py-4 flex items-end gap-2 px-2 overflow-hidden">
+            {/* Pure CSS decorative chart */}
+            <div className="absolute inset-0 flex flex-col justify-between py-4 pointer-events-none opacity-20">
+              <div className="w-full border-t border-dashed border-muted-foreground"></div>
+              <div className="w-full border-t border-dashed border-muted-foreground"></div>
+              <div className="w-full border-t border-dashed border-muted-foreground"></div>
+              <div className="w-full border-t border-dashed border-muted-foreground"></div>
             </div>
+            
+            {[40, 65, 30, 80, 50, 95, 75, 40, 60, 20, 85, 100].map((h, i) => (
+              <div key={i} className="flex-1 flex flex-col justify-end h-full group">
+                <div 
+                  className="w-full bg-primary/20 hover:bg-primary/40 rounded-t-sm transition-all duration-300 relative border-t-2 border-primary" 
+                  style={{ height: `${h}%` }}
+                >
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-foreground text-background text-[10px] font-bold px-2 py-1 rounded pointer-events-none">
+                    {h}k
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="panel-body">
-             <div className="mock-area-chart">
-               {/* Pure CSS decorative chart */}
-               <div className="chart-grid-lines">
-                 <div className="line"></div>
-                 <div className="line"></div>
-                 <div className="line"></div>
-                 <div className="line"></div>
-               </div>
-               <div className="chart-bars-wrapper">
-                 {[40, 65, 30, 80, 50, 95, 75, 40, 60, 20, 85, 100].map((h, i) => (
-                   <div key={i} className="chart-bar-col">
-                     <div className="chart-bar-fill" style={{ height: `${h}%` }}></div>
-                   </div>
-                 ))}
-               </div>
-             </div>
-          </div>
-      </div>
-
+        </CardContent>
+      </Card>
     </div>
   );
 }

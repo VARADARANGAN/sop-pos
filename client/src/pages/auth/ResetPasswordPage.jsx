@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
-import { Lock, Sparkles, ArrowLeft } from "lucide-react";
-import "./Auth.css";
+import { Lock, Sparkles, ArrowLeft, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -45,72 +48,94 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="auth-overlay">
-      <div className="auth-card glass-card">
-        <div className="auth-header">
-          <Sparkles className="auth-logo" />
-          <h2>Reset Password</h2>
-          <p>Define a new strong password for your account</p>
-        </div>
-
-        {error && <div className="alert alert-danger">{error}</div>}
-        {message && <div className="alert alert-success">{message}</div>}
-
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Reset Token</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Paste your reset token here"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              required
-            />
+    <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4 font-sans relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-background to-background"></div>
+      
+      <Card className="w-full max-w-md shadow-xl shadow-primary/5 border-border/50 bg-background/60 backdrop-blur-xl">
+        <CardHeader className="space-y-4 pb-6 text-center">
+          <div className="mx-auto bg-primary/10 w-12 h-12 rounded-xl flex items-center justify-center">
+            <Sparkles className="h-6 w-6 text-primary" />
           </div>
-
-          <div className="form-group">
-            <label className="form-label">New Password</label>
-            <div className="input-with-icon">
-              <Lock className="input-icon" />
-              <input
-                type="password"
-                className="form-control"
-                placeholder="Min 8 characters, uppercase, special char"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-              />
-            </div>
+          <div className="space-y-2">
+            <CardTitle className="text-2xl font-bold tracking-tight">Reset Password</CardTitle>
+            <CardDescription>Define a new strong password for your account</CardDescription>
           </div>
+        </CardHeader>
+        
+        <CardContent>
+          <div className="space-y-5">
+            {error && (
+              <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <p>{error}</p>
+              </div>
+            )}
+            {message && (
+              <div className="p-3 text-sm text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 rounded-md flex items-start gap-2">
+                <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
+                <p>{message}</p>
+              </div>
+            )}
 
-          <div className="form-group">
-            <label className="form-label">Confirm New Password</label>
-            <div className="input-with-icon">
-              <Lock className="input-icon" />
-              <input
-                type="password"
-                className="form-control"
-                placeholder="Confirm password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="token">Reset Token</Label>
+                <Input
+                  id="token"
+                  type="text"
+                  placeholder="Paste your reset token here"
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">New Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="newPassword"
+                    type="password"
+                    placeholder="Min 8 characters, uppercase, special char"
+                    className="pl-9"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="Confirm password"
+                    className="pl-9"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+
+              <Button type="submit" className="w-full h-11 text-base font-semibold shadow-md shadow-primary/20 mt-2" disabled={loading}>
+                {loading ? "Resetting..." : "Reset Password"}
+              </Button>
+            </form>
           </div>
-
-          <button type="submit" className="btn btn-primary auth-submit-btn" disabled={loading}>
-            {loading ? "Resetting..." : "Reset Password"}
-          </button>
-        </form>
-
-        <div style={{ marginTop: "24px", textAlign: "center" }}>
-          <Link to="/login" className="auth-link" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-            <ArrowLeft style={{ width: "14px", height: "14px" }} />
+        </CardContent>
+        <CardFooter className="justify-center border-t border-border/40 pt-6 pb-6">
+          <Link to="/login" className="text-sm text-muted-foreground hover:text-foreground font-medium flex items-center gap-2 transition-colors">
+            <ArrowLeft className="h-4 w-4" />
             Back to login
           </Link>
-        </div>
-      </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 }
