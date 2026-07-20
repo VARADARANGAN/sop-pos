@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { Tags, Plus, Edit, Trash2 } from "lucide-react";
+import { Tags, Plus, Edit, Trash2, X } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function CategoriesPage() {
   const { apiRequest } = useAuth();
@@ -29,7 +33,7 @@ export default function CategoriesPage() {
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [apiRequest]);
 
   const openCreateModal = () => {
     setCategoryId(null);
@@ -85,53 +89,62 @@ export default function CategoriesPage() {
     }
   };
 
-  if (loading) return <div className="loading-spinner">Loading categories...</div>;
+  if (loading) return (
+    <div className="flex h-full items-center justify-center p-8">
+      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent"></div>
+        <p>Loading categories...</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-        <h2 style={{ margin: 0, display: "flex", alignItems: "center", gap: "10px" }}>
-          <Tags style={{ color: "var(--accent)" }} />
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+          <Tags className="h-6 w-6 text-primary" />
           Product Categories
         </h2>
-        <button className="btn btn-primary" onClick={openCreateModal}>
-          <Plus style={{ width: "16px", height: "16px" }} />
+        <Button onClick={openCreateModal} className="shrink-0 gap-2">
+          <Plus className="h-4 w-4" />
           Add Category
-        </button>
+        </Button>
       </div>
 
-      {error && <div className="alert alert-danger">{error}</div>}
+      {error && <div className="p-3 text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 rounded-md">{error}</div>}
 
-      <div className="glass-card">
-        <div className="table-container">
-          <table className="custom-table">
-            <thead>
+      <Card>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs uppercase bg-muted/50 text-muted-foreground border-b border-border/50">
               <tr>
-                <th>Category Code</th>
-                <th>Category Name</th>
-                <th style={{ textAlign: "right" }}>Actions</th>
+                <th className="px-6 py-4 font-semibold">Category Code</th>
+                <th className="px-6 py-4 font-semibold">Category Name</th>
+                <th className="px-6 py-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-border/50">
               {categories.length === 0 ? (
                 <tr>
-                  <td colSpan="3" style={{ textAlign: "center" }} className="empty-state">
+                  <td colSpan="3" className="px-6 py-8 text-center text-muted-foreground">
                     No product categories configured.
                   </td>
                 </tr>
               ) : (
                 categories.map((c) => (
-                  <tr key={c._id}>
-                    <td style={{ fontWeight: 600, color: "var(--text-h)" }}>{c.categoryCode}</td>
-                    <td>{c.categoryName}</td>
-                    <td style={{ textAlign: "right" }}>
-                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
-                        <button className="btn btn-secondary" style={{ padding: "6px" }} onClick={() => openEditModal(c)}>
-                          <Edit style={{ width: "14px", height: "14px" }} />
-                        </button>
-                        <button className="btn btn-danger" style={{ padding: "6px", background: "rgba(239, 68, 68, 0.1)", color: "#ef4444" }} onClick={() => handleDelete(c._id)}>
-                          <Trash2 style={{ width: "14px", height: "14px" }} />
-                        </button>
+                  <tr key={c._id} className="hover:bg-muted/30 transition-colors">
+                    <td className="px-6 py-4">
+                      <span className="font-semibold text-foreground">{c.categoryCode}</span>
+                    </td>
+                    <td className="px-6 py-4">{c.categoryName}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => openEditModal(c)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20" onClick={() => handleDelete(c._id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -140,53 +153,53 @@ export default function CategoriesPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
 
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content glass-card">
-            <div className="modal-header">
-              <h3>{categoryId ? "Edit Category" : "Add New Category"}</h3>
-              <button className="btn btn-secondary" style={{ padding: "4px" }} onClick={() => setShowModal(false)}>
-                ✕
-              </button>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-md shadow-lg border-border/60">
             <form onSubmit={handleSubmit}>
-              <div className="modal-body">
-                {error && <div className="alert alert-danger">{error}</div>}
-                <div className="form-group">
-                  <label className="form-label">Category Code</label>
-                  <input
+              <CardHeader className="flex flex-row items-center justify-between border-b border-border/40 pb-4">
+                <CardTitle className="text-lg">{categoryId ? "Edit Category" : "Add New Category"}</CardTitle>
+                <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowModal(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                {error && <div className="p-3 text-sm text-destructive-foreground bg-destructive rounded-md">{error}</div>}
+                <div className="space-y-2">
+                  <Label htmlFor="categoryCode">Category Code</Label>
+                  <Input
+                    id="categoryCode"
                     type="text"
-                    className="form-control"
                     placeholder="e.g. BEV, MAIN, DESSERT"
                     value={categoryCode}
                     onChange={(e) => setCategoryCode(e.target.value)}
                     required
                   />
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Category Name</label>
-                  <input
+                <div className="space-y-2">
+                  <Label htmlFor="categoryName">Category Name</Label>
+                  <Input
+                    id="categoryName"
                     type="text"
-                    className="form-control"
                     placeholder="e.g. Beverages, Mains, Desserts"
                     value={categoryName}
                     onChange={(e) => setCategoryName(e.target.value)}
                     required
                   />
                 </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
+              </CardContent>
+              <CardFooter className="flex justify-end gap-2 border-t border-border/40 pt-4 px-6 pb-6">
+                <Button type="button" variant="secondary" onClick={() => setShowModal(false)}>
                   Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
+                </Button>
+                <Button type="submit">
                   {categoryId ? "Save Changes" : "Create Category"}
-                </button>
-              </div>
+                </Button>
+              </CardFooter>
             </form>
-          </div>
+          </Card>
         </div>
       )}
     </div>

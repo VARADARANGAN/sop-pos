@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { Layers, Plus, Edit, Trash2, ShieldCheck, Settings } from "lucide-react";
+import { Layers, Plus, Edit, Trash2, ShieldCheck, Settings, X } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function IngredientsPage() {
   const { apiRequest, user: currentUser, hasRole } = useAuth();
@@ -48,7 +52,7 @@ export default function IngredientsPage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [apiRequest, currentUser.role, hasRole]);
 
   const openCreateModal = () => {
     setIngredientId(null);
@@ -126,63 +130,73 @@ export default function IngredientsPage() {
     }
   };
 
-  if (loading) return <div className="loading-spinner">Loading kitchen ingredients...</div>;
+  if (loading) return (
+    <div className="flex h-full items-center justify-center p-8">
+      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent"></div>
+        <p>Loading kitchen ingredients...</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-        <h2 style={{ margin: 0, display: "flex", alignItems: "center", gap: "10px" }}>
-          <Layers style={{ color: "var(--accent)" }} />
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+          <Layers className="h-6 w-6 text-primary" />
           Kitchen Raw Ingredients
         </h2>
         {activeTab === "inventory" && (
-          <button className="btn btn-primary" onClick={openCreateModal}>
-            <Plus style={{ width: "16px", height: "16px" }} />
+          <Button onClick={openCreateModal} className="shrink-0 gap-2">
+            <Plus className="h-4 w-4" />
             Add Ingredient
-          </button>
+          </Button>
         )}
       </div>
 
       {hasRole(["SUPER_ADMIN", "BRANCH_ADMIN"]) && (
-        <div style={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
-          <button
-            className={`btn ${activeTab === "inventory" ? "btn-primary" : "btn-secondary"}`}
+        <div className="flex flex-wrap gap-2 mb-4 bg-muted/30 p-1.5 rounded-lg border border-border/50 inline-flex">
+          <Button
+            variant={activeTab === "inventory" ? "default" : "ghost"}
             onClick={() => setActiveTab("inventory")}
+            className="text-sm rounded-md"
+            size="sm"
           >
             Inventory Stock
-          </button>
-          <button
-            className={`btn ${activeTab === "permissions" ? "btn-primary" : "btn-secondary"}`}
+          </Button>
+          <Button
+            variant={activeTab === "permissions" ? "default" : "ghost"}
             onClick={() => setActiveTab("permissions")}
-            style={{ display: "flex", alignItems: "center", gap: "6px" }}
+            className="text-sm rounded-md gap-2"
+            size="sm"
           >
-            <ShieldCheck style={{ width: "16px", height: "16px" }} />
+            <ShieldCheck className="h-4 w-4" />
             Cashier Permissions
-          </button>
+          </Button>
         </div>
       )}
 
-      {error && <div className="alert alert-danger">{error}</div>}
+      {error && <div className="p-3 text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 rounded-md">{error}</div>}
 
       {activeTab === "inventory" ? (
-        <div className="glass-card">
-          <div className="table-container">
-            <table className="custom-table">
-              <thead>
+        <Card>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs uppercase bg-muted/50 text-muted-foreground border-b border-border/50">
                 <tr>
-                  <th>Ingredient Name</th>
-                  <th>Current Quantity</th>
-                  <th>Unit</th>
-                  <th>Min Level</th>
-                  <th>Status</th>
-                  <th>Assigned Branch</th>
-                  <th style={{ textAlign: "right" }}>Actions</th>
+                  <th className="px-6 py-4 font-semibold">Ingredient Name</th>
+                  <th className="px-6 py-4 font-semibold">Current Quantity</th>
+                  <th className="px-6 py-4 font-semibold">Unit</th>
+                  <th className="px-6 py-4 font-semibold">Min Level</th>
+                  <th className="px-6 py-4 font-semibold">Status</th>
+                  <th className="px-6 py-4 font-semibold">Assigned Branch</th>
+                  <th className="px-6 py-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-border/50">
                 {ingredients.length === 0 ? (
                   <tr>
-                    <td colSpan="7" style={{ textAlign: "center" }} className="empty-state">
+                    <td colSpan="7" className="px-6 py-8 text-center text-muted-foreground">
                       No kitchen raw ingredients registered.
                     </td>
                   </tr>
@@ -190,27 +204,27 @@ export default function IngredientsPage() {
                   ingredients.map((ing) => {
                     const isLow = ing.quantity <= ing.reorderLevel;
                     return (
-                      <tr key={ing._id}>
-                        <td style={{ fontWeight: 600, color: "var(--text-h)" }}>{ing.name}</td>
-                        <td>{ing.quantity}</td>
-                        <td>{ing.unit}</td>
-                        <td>{ing.reorderLevel}</td>
-                        <td>
+                      <tr key={ing._id} className="hover:bg-muted/30 transition-colors">
+                        <td className="px-6 py-4 font-semibold text-foreground">{ing.name}</td>
+                        <td className="px-6 py-4 font-medium">{ing.quantity}</td>
+                        <td className="px-6 py-4">{ing.unit}</td>
+                        <td className="px-6 py-4">{ing.reorderLevel}</td>
+                        <td className="px-6 py-4">
                           {isLow ? (
-                            <span className="badge badge-danger">Low Stock</span>
+                            <span className="px-2 py-1 rounded bg-destructive/10 text-destructive border border-destructive/20 text-xs font-semibold whitespace-nowrap">Low Stock</span>
                           ) : (
-                            <span className="badge badge-success">Good</span>
+                            <span className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-semibold whitespace-nowrap">Good</span>
                           )}
                         </td>
-                        <td>{ing.branchId?.branchName || "All Branches"}</td>
-                        <td style={{ textAlign: "right" }}>
-                          <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
-                            <button className="btn btn-secondary" style={{ padding: "6px" }} onClick={() => openEditModal(ing)}>
-                              <Edit style={{ width: "14px", height: "14px" }} />
-                            </button>
-                            <button className="btn btn-danger" style={{ padding: "6px", background: "rgba(239, 68, 68, 0.1)", color: "#ef4444" }} onClick={() => handleDelete(ing._id)}>
-                              <Trash2 style={{ width: "14px", height: "14px" }} />
-                            </button>
+                        <td className="px-6 py-4 whitespace-nowrap">{ing.branchId?.branchName || "All Branches"}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex justify-end gap-2">
+                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => openEditModal(ing)}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20" onClick={() => handleDelete(ing._id)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -220,49 +234,52 @@ export default function IngredientsPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
       ) : (
         /* Cashier Permissions Tab (SUPER_ADMIN / BRANCH_ADMIN only) */
-        <div className="glass-card">
-          <div style={{ marginBottom: "16px", fontSize: "14px", color: "var(--secondary)", display: "flex", alignItems: "center", gap: "6px" }}>
-            <Settings style={{ width: "16px", height: "16px" }} />
-            Toggle which Cashiers can view and write raw kitchen ingredients for their branch.
-          </div>
-          <div className="table-container">
-            <table className="custom-table">
-              <thead>
+        <Card>
+          <CardHeader className="pb-3 border-b border-border/40 bg-muted/10">
+            <CardDescription className="flex items-center gap-2 text-sm">
+              <Settings className="h-4 w-4" />
+              Toggle which Cashiers can view and write raw kitchen ingredients for their branch.
+            </CardDescription>
+          </CardHeader>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs uppercase bg-muted/50 text-muted-foreground border-b border-border/50">
                 <tr>
-                  <th>Employee Code</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Branch</th>
-                  <th style={{ textAlign: "right" }}>Ingredients Access Toggle</th>
+                  <th className="px-6 py-4 font-semibold">Employee Code</th>
+                  <th className="px-6 py-4 font-semibold">Name</th>
+                  <th className="px-6 py-4 font-semibold">Email</th>
+                  <th className="px-6 py-4 font-semibold">Branch</th>
+                  <th className="px-6 py-4 font-semibold text-right">Ingredients Access Toggle</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-border/50">
                 {cashiers.length === 0 ? (
                   <tr>
-                    <td colSpan="5" style={{ textAlign: "center" }} className="empty-state">
+                    <td colSpan="5" className="px-6 py-8 text-center text-muted-foreground">
                       No cashier staff found.
                     </td>
                   </tr>
                 ) : (
                   cashiers.map((cashier) => (
-                    <tr key={cashier._id}>
-                      <td>
-                        <span className="badge badge-info">{cashier.employeeCode}</span>
+                    <tr key={cashier._id} className="hover:bg-muted/30 transition-colors">
+                      <td className="px-6 py-4">
+                        <span className="px-2 py-1 rounded bg-sky-500/10 text-sky-600 border border-sky-500/20 text-xs font-semibold">{cashier.employeeCode}</span>
                       </td>
-                      <td style={{ fontWeight: 600, color: "var(--text-h)" }}>{cashier.firstName} {cashier.lastName}</td>
-                      <td>{cashier.email}</td>
-                      <td>{cashier.branchId ? "Assigned" : "All Branches"}</td>
-                      <td style={{ textAlign: "right" }}>
-                        <label style={{ display: "inline-flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                      <td className="px-6 py-4 font-semibold text-foreground">{cashier.firstName} {cashier.lastName}</td>
+                      <td className="px-6 py-4 text-muted-foreground">{cashier.email}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{cashier.branchId ? "Assigned" : "All Branches"}</td>
+                      <td className="px-6 py-4 text-right">
+                        <label className="inline-flex items-center gap-3 cursor-pointer select-none">
                           <input
                             type="checkbox"
                             checked={cashier.hasIngredientsAccess || false}
                             onChange={() => handleToggleAccess(cashier._id, cashier.hasIngredientsAccess)}
+                            className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
                           />
-                          <span style={{ fontSize: "13px", fontWeight: 600, color: cashier.hasIngredientsAccess ? "var(--success)" : "var(--secondary)" }}>
+                          <span className={`text-sm font-semibold ${cashier.hasIngredientsAccess ? "text-emerald-500" : "text-muted-foreground"}`}>
                             {cashier.hasIngredientsAccess ? "Authorized" : "Revoked"}
                           </span>
                         </label>
@@ -273,47 +290,52 @@ export default function IngredientsPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
       )}
 
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content glass-card">
-            <div className="modal-header">
-              <h3>{ingredientId ? "Edit Kitchen Stock" : "Add Kitchen Ingredient"}</h3>
-              <button className="btn btn-secondary" style={{ padding: "4px" }} onClick={() => setShowModal(false)}>
-                ✕
-              </button>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-lg shadow-lg border-border/60">
             <form onSubmit={handleSubmit}>
-              <div className="modal-body">
-                {error && <div className="alert alert-danger">{error}</div>}
-                <div className="form-group">
-                  <label className="form-label">Ingredient Name</label>
-                  <input
+              <CardHeader className="flex flex-row items-center justify-between border-b border-border/40 pb-4">
+                <CardTitle className="text-lg">{ingredientId ? "Edit Kitchen Stock" : "Add Kitchen Ingredient"}</CardTitle>
+                <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowModal(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                {error && <div className="p-3 text-sm text-destructive-foreground bg-destructive rounded-md">{error}</div>}
+                
+                <div className="space-y-2">
+                  <Label>Ingredient Name</Label>
+                  <Input
                     type="text"
-                    className="form-control"
                     placeholder="e.g. White Sugar, Fresh Milk, Flour"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
                   />
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                  <div className="form-group">
-                    <label className="form-label">Initial Quantity</label>
-                    <input
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Initial Quantity</Label>
+                    <Input
                       type="number"
-                      className="form-control"
+                      step="0.01"
                       value={quantity}
                       onChange={(e) => setQuantity(parseFloat(e.target.value) || 0)}
                       required
                       min="0"
                     />
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Unit</label>
-                    <select className="form-control" value={unit} onChange={(e) => setUnit(e.target.value)}>
+                  <div className="space-y-2">
+                    <Label>Unit</Label>
+                    <select 
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      value={unit} 
+                      onChange={(e) => setUnit(e.target.value)}
+                    >
                       <option value="KG">KG</option>
                       <option value="GRAM">GRAM</option>
                       <option value="LITRE">LITRE</option>
@@ -324,11 +346,12 @@ export default function IngredientsPage() {
                     </select>
                   </div>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Low Stock Reorder Threshold</label>
-                  <input
+                
+                <div className="space-y-2">
+                  <Label>Low Stock Reorder Threshold</Label>
+                  <Input
                     type="number"
-                    className="form-control"
+                    step="0.01"
                     value={reorderLevel}
                     onChange={(e) => setReorderLevel(parseFloat(e.target.value) || 0)}
                     required
@@ -336,10 +359,15 @@ export default function IngredientsPage() {
                   />
                 </div>
 
-                {currentUser.role === "SUPER_ADMIN" ? (
-                  <div className="form-group">
-                    <label className="form-label">Assigned Branch</label>
-                    <select className="form-control" value={branchId} onChange={(e) => setBranchId(e.target.value)} required>
+                {currentUser.role === "SUPER_ADMIN" && (
+                  <div className="space-y-2">
+                    <Label>Assigned Branch</Label>
+                    <select 
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      value={branchId} 
+                      onChange={(e) => setBranchId(e.target.value)} 
+                      required
+                    >
                       <option value="">-- Select Branch --</option>
                       {branches.map((b) => (
                         <option key={b._id} value={b._id}>
@@ -348,18 +376,18 @@ export default function IngredientsPage() {
                       ))}
                     </select>
                   </div>
-                ) : null}
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
+                )}
+              </CardContent>
+              <CardFooter className="flex justify-end gap-2 border-t border-border/40 pt-4 px-6 pb-6 bg-muted/10">
+                <Button type="button" variant="outline" onClick={() => setShowModal(false)}>
                   Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
+                </Button>
+                <Button type="submit">
                   {ingredientId ? "Save Changes" : "Create Ingredient"}
-                </button>
-              </div>
+                </Button>
+              </CardFooter>
             </form>
-          </div>
+          </Card>
         </div>
       )}
     </div>

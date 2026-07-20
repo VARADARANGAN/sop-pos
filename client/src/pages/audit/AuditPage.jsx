@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { FileText, ShieldAlert } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function AuditPage() {
   const { apiRequest } = useAuth();
@@ -22,94 +23,107 @@ export default function AuditPage() {
       }
     };
     fetchLogs();
-  }, []);
+  }, [apiRequest]);
 
-  if (loading) return <div className="loading-spinner">Loading system audit trails...</div>;
+  if (loading) return (
+    <div className="flex h-full items-center justify-center p-8">
+      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent"></div>
+        <p>Loading system audit trails...</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-        <h2 style={{ margin: 0, display: "flex", alignItems: "center", gap: "10px" }}>
-          <FileText style={{ color: "var(--accent)" }} />
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+          <FileText className="h-6 w-6 text-primary" />
           Immutable Audit Trails
         </h2>
       </div>
 
-      {error && <div className="alert alert-danger">{error}</div>}
+      {error && <div className="p-3 text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 rounded-md">{error}</div>}
 
-      <div className="glass-card">
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "rgba(239, 68, 68, 0.05)", border: "1px solid rgba(239, 68, 68, 0.1)", borderRadius: "8px", padding: "12px", marginBottom: "16px", fontSize: "13px", color: "var(--danger)" }}>
-          <ShieldAlert style={{ width: "16px", height: "16px", flexShrink: 0 }} />
-          These records are immutable and track all modifications, security adjustments, stock transfers, and price discount exceptions.
-        </div>
+      <Card>
+        <CardContent className="p-0">
+          <div className="m-6 flex items-center gap-3 bg-destructive/5 border border-destructive/20 rounded-lg p-4 text-sm text-destructive shadow-sm">
+            <ShieldAlert className="h-5 w-5 shrink-0" />
+            <p className="font-medium leading-relaxed">
+              These records are immutable and track all modifications, security adjustments, stock transfers, and price discount exceptions.
+            </p>
+          </div>
 
-        <div className="table-container" style={{ maxHeight: "65vh" }}>
-          <table className="custom-table">
-            <thead>
-              <tr>
-                <th>Timestamp</th>
-                <th>Staff/Actor</th>
-                <th>Action Code</th>
-                <th>Affected Target</th>
-                <th>Metadata Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              {logs.length === 0 ? (
+          <div className="overflow-x-auto border-t border-border/50 max-h-[65vh]">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs uppercase bg-muted/50 text-muted-foreground border-b border-border/50 sticky top-0 z-10 backdrop-blur bg-muted/80">
                 <tr>
-                  <td colSpan="5" style={{ textAlign: "center" }} className="empty-state">
-                    No audit records registered.
-                  </td>
+                  <th className="px-6 py-4 font-semibold">Timestamp</th>
+                  <th className="px-6 py-4 font-semibold">Staff/Actor</th>
+                  <th className="px-6 py-4 font-semibold">Action Code</th>
+                  <th className="px-6 py-4 font-semibold">Affected Target</th>
+                  <th className="px-6 py-4 font-semibold">Metadata Details</th>
                 </tr>
-              ) : (
-                logs.map((log) => (
-                  <tr key={log._id}>
-                    <td style={{ fontSize: "12px" }}>
-                      {new Date(log.timestamp).toLocaleString()}
-                    </td>
-                    <td>
-                      <div style={{ fontWeight: 600, color: "var(--text-h)" }}>{log.actorName}</div>
-                      {log.actorId && (
-                        <span style={{ fontSize: "11px", color: "var(--secondary)" }}>
-                          {log.actorId.role?.replace("_", " ")}
-                        </span>
-                      )}
-                    </td>
-                    <td>
-                      <span className={`badge ${
-                        log.action.includes("LOCKOUT") || log.action.includes("VOID")
-                          ? "badge-danger"
-                          : log.action.includes("GRANT") || log.action.includes("APPROVE")
-                          ? "badge-success"
-                          : log.action.includes("REQUEST")
-                          ? "badge-warning"
-                          : "badge-info"
-                      }`}>
-                        {log.action}
-                      </span>
-                    </td>
-                    <td>
-                      <div style={{ fontWeight: 600, fontSize: "13px" }}>{log.entity}</div>
-                      <span style={{ fontSize: "11px", fontFamily: "monospace", color: "var(--secondary)" }}>
-                        {log.entityId || "N/A"}
-                      </span>
-                    </td>
-                    <td>
-                      {log.metadata && Object.keys(log.metadata).length > 0 ? (
-                        <pre style={{ margin: 0, fontSize: "11px", fontFamily: "monospace", overflowX: "auto", background: "rgba(0,0,0,0.2)", padding: "4px 8px", borderRadius: "4px" }}>
-                          {JSON.stringify(log.metadata, null, 2)}
-                        </pre>
-                      ) : (
-                        "-"
-                      )}
+              </thead>
+              <tbody className="divide-y divide-border/50">
+                {logs.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="px-6 py-12 text-center text-muted-foreground">
+                      No audit records registered.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                ) : (
+                  logs.map((log) => (
+                    <tr key={log._id} className="hover:bg-muted/30 transition-colors group">
+                      <td className="px-6 py-4 text-xs font-medium whitespace-nowrap text-muted-foreground group-hover:text-foreground transition-colors">
+                        {new Date(log.timestamp).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-semibold text-foreground">{log.actorName}</div>
+                        {log.actorId && (
+                          <div className="text-[11px] text-muted-foreground font-medium mt-0.5 tracking-wider">
+                            {log.actorId.role?.replace("_", " ")}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 rounded text-[11px] font-bold uppercase tracking-wider whitespace-nowrap border ${
+                          log.action.includes("LOCKOUT") || log.action.includes("VOID") || log.action.includes("DELETE")
+                            ? "bg-destructive/10 text-destructive border-destructive/20"
+                            : log.action.includes("GRANT") || log.action.includes("APPROVE") || log.action.includes("CREATE") || log.action.includes("SUCCESS")
+                            ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                            : log.action.includes("REQUEST") || log.action.includes("UPDATE") || log.action.includes("EDIT")
+                            ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                            : "bg-sky-500/10 text-sky-600 border-sky-500/20"
+                        }`}>
+                          {log.action}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="font-semibold text-[13px] text-foreground">{log.entity}</div>
+                        <div className="text-[11px] font-mono text-muted-foreground mt-1 tracking-tight">
+                          {log.entityId || "N/A"}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        {log.metadata && Object.keys(log.metadata).length > 0 ? (
+                          <div className="bg-muted/50 border border-border/50 rounded-md p-2.5 max-h-32 overflow-y-auto max-w-[300px]">
+                            <pre className="text-[10px] font-mono text-muted-foreground m-0 whitespace-pre-wrap break-all leading-relaxed">
+                              {JSON.stringify(log.metadata, null, 2)}
+                            </pre>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground font-medium">-</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

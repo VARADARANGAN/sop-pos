@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { Package, Plus, MoveHorizontal, AlertTriangle, ShieldCheck, HelpCircle } from "lucide-react";
+import { Package, Plus, MoveHorizontal, AlertTriangle, ShieldCheck, HelpCircle, X } from "lucide-react";
 import { formatCurrency } from "../../utils/formatters";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function InventoryPage() {
   const { apiRequest, user: currentUser, hasRole } = useAuth();
@@ -66,7 +70,7 @@ export default function InventoryPage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [apiRequest, currentUser.role]);
 
   const openAdjustModal = () => {
     setAdjItemType("PRODUCT");
@@ -206,67 +210,78 @@ export default function InventoryPage() {
     }
   };
 
-  if (loading) return <div className="loading-spinner">Loading inventory modules...</div>;
+  if (loading) return (
+    <div className="flex h-full items-center justify-center p-8">
+      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent"></div>
+        <p>Loading inventory modules...</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-        <h2 style={{ margin: 0, display: "flex", alignItems: "center", gap: "10px" }}>
-          <Package style={{ color: "var(--accent)" }} />
+    <div className="space-y-6">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+          <Package className="h-6 w-6 text-primary" />
           Inventory Management
         </h2>
-        <div style={{ display: "flex", gap: "10px" }}>
-          <button className="btn btn-secondary" onClick={openInitModal}>
-            <Plus style={{ width: "16px", height: "16px" }} />
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={openInitModal} className="gap-2">
+            <Plus className="h-4 w-4" />
             Initialize Stock
-          </button>
-          <button className="btn btn-secondary" onClick={openAdjustModal}>
-            <AlertTriangle style={{ width: "16px", height: "16px" }} />
+          </Button>
+          <Button variant="outline" onClick={openAdjustModal} className="gap-2 text-amber-600 border-amber-600/20 hover:bg-amber-600/10 hover:text-amber-700">
+            <AlertTriangle className="h-4 w-4" />
             Wastage Adjustment
-          </button>
-          <button className="btn btn-primary" onClick={openTransferModal}>
-            <MoveHorizontal style={{ width: "16px", height: "16px" }} />
+          </Button>
+          <Button onClick={openTransferModal} className="gap-2">
+            <MoveHorizontal className="h-4 w-4" />
             Request Transfer
-          </button>
+          </Button>
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
-        <button
-          className={`btn ${activeTab === "stock" ? "btn-primary" : "btn-secondary"}`}
+      <div className="flex flex-wrap gap-2 bg-muted/30 p-1.5 rounded-lg border border-border/50 inline-flex">
+        <Button
+          variant={activeTab === "stock" ? "default" : "ghost"}
           onClick={() => setActiveTab("stock")}
+          className="text-sm rounded-md"
+          size="sm"
         >
           Stock Balance
-        </button>
-        <button
-          className={`btn ${activeTab === "transfers" ? "btn-primary" : "btn-secondary"}`}
+        </Button>
+        <Button
+          variant={activeTab === "transfers" ? "default" : "ghost"}
           onClick={() => setActiveTab("transfers")}
+          className="text-sm rounded-md"
+          size="sm"
         >
           Inter-Branch Transfers
-        </button>
+        </Button>
       </div>
 
-      {error && <div className="alert alert-danger">{error}</div>}
+      {error && <div className="p-3 text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 rounded-md">{error}</div>}
 
       {activeTab === "stock" ? (
-        <div className="glass-card">
-          <div className="table-container">
-            <table className="custom-table">
-              <thead>
+        <Card>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs uppercase bg-muted/50 text-muted-foreground border-b border-border/50">
                 <tr>
-                  <th>Product Details</th>
-                  <th>Assigned Branch</th>
-                  <th>Reorder Limit</th>
-                  <th>Current Stock</th>
-                  <th>Available Stock</th>
-                  <th>Reserved Stock</th>
-                  <th>Status</th>
+                  <th className="px-6 py-4 font-semibold">Product Details</th>
+                  <th className="px-6 py-4 font-semibold">Assigned Branch</th>
+                  <th className="px-6 py-4 font-semibold">Reorder Limit</th>
+                  <th className="px-6 py-4 font-semibold">Current Stock</th>
+                  <th className="px-6 py-4 font-semibold">Available Stock</th>
+                  <th className="px-6 py-4 font-semibold">Reserved Stock</th>
+                  <th className="px-6 py-4 font-semibold">Status</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-border/50">
                 {inventory.length === 0 ? (
                   <tr>
-                    <td colSpan="7" style={{ textAlign: "center" }} className="empty-state">
+                    <td colSpan="7" className="px-6 py-8 text-center text-muted-foreground">
                       No stock records initialized. Add products or restock.
                     </td>
                   </tr>
@@ -276,25 +291,25 @@ export default function InventoryPage() {
                     // Find variant name if it has variantId
                     const variantName = inv.variantId && inv.productId?.variants?.find(v => v._id === inv.variantId)?.name;
                     return (
-                      <tr key={inv._id}>
-                        <td>
-                          <div style={{ fontWeight: 600, color: "var(--text-h)" }}>
-                            {inv.productId?.productName} {variantName ? `(${variantName})` : ""}
+                      <tr key={inv._id} className="hover:bg-muted/30 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="font-semibold text-foreground">
+                            {inv.productId?.productName} {variantName ? <span className="text-muted-foreground text-xs font-normal ml-1">({variantName})</span> : ""}
                           </div>
-                          <span style={{ fontSize: "11px", color: "var(--secondary)" }}>
+                          <span className="text-[11px] text-muted-foreground mt-0.5 block">
                             {inv.productId?.productCode}
                           </span>
                         </td>
-                        <td>{inv.branchId?.branchName}</td>
-                        <td>{inv.reorderLevel}</td>
-                        <td>{inv.currentStock}</td>
-                        <td>{inv.availableStock}</td>
-                        <td>{inv.reservedStock}</td>
-                        <td>
+                        <td className="px-6 py-4 whitespace-nowrap">{inv.branchId?.branchName}</td>
+                        <td className="px-6 py-4">{inv.reorderLevel}</td>
+                        <td className="px-6 py-4 font-medium">{inv.currentStock}</td>
+                        <td className="px-6 py-4 font-medium">{inv.availableStock}</td>
+                        <td className="px-6 py-4">{inv.reservedStock}</td>
+                        <td className="px-6 py-4">
                           {isLow ? (
-                            <span className="badge badge-danger">Reorder Alert</span>
+                            <span className="px-2 py-1 rounded bg-destructive/10 text-destructive border border-destructive/20 text-xs font-semibold whitespace-nowrap">Reorder Alert</span>
                           ) : (
-                            <span className="badge badge-success">Sufficient</span>
+                            <span className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-semibold whitespace-nowrap">Sufficient</span>
                           )}
                         </td>
                       </tr>
@@ -304,26 +319,26 @@ export default function InventoryPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
       ) : (
         /* tab: Inter-Branch transfers dashboard */
-        <div className="glass-card">
-          <div className="table-container">
-            <table className="custom-table">
-              <thead>
+        <Card>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs uppercase bg-muted/50 text-muted-foreground border-b border-border/50">
                 <tr>
-                  <th>Source Branch</th>
-                  <th>Dest Branch</th>
-                  <th>Details / Items</th>
-                  <th>Requested By</th>
-                  <th>Status</th>
-                  <th style={{ textAlign: "right" }}>Actions</th>
+                  <th className="px-6 py-4 font-semibold">Source Branch</th>
+                  <th className="px-6 py-4 font-semibold">Dest Branch</th>
+                  <th className="px-6 py-4 font-semibold">Details / Items</th>
+                  <th className="px-6 py-4 font-semibold">Requested By</th>
+                  <th className="px-6 py-4 font-semibold">Status</th>
+                  <th className="px-6 py-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-border/50">
                 {transfers.length === 0 ? (
                   <tr>
-                    <td colSpan="6" style={{ textAlign: "center" }} className="empty-state">
+                    <td colSpan="6" className="px-6 py-8 text-center text-muted-foreground">
                       No transfer requests registered.
                     </td>
                   </tr>
@@ -335,34 +350,40 @@ export default function InventoryPage() {
                     const canApprove = currentUser.role === "SUPER_ADMIN" || isActorSourceBranchAdmin || isActorDestBranchAdmin;
 
                     return (
-                      <tr key={tf._id}>
-                        <td>{tf.fromBranchId?.branchName}</td>
-                        <td>{tf.toBranchId?.branchName}</td>
-                        <td>
-                          {tf.items?.map((item, idx) => (
-                            <div key={idx} style={{ fontSize: "13px", fontWeight: 600 }}>
-                              {item.itemType} ID: {item.itemId} - Qty: {item.quantity}
-                            </div>
-                          ))}
+                      <tr key={tf._id} className="hover:bg-muted/30 transition-colors">
+                        <td className="px-6 py-4 font-medium">{tf.fromBranchId?.branchName}</td>
+                        <td className="px-6 py-4 font-medium">{tf.toBranchId?.branchName}</td>
+                        <td className="px-6 py-4">
+                          <div className="space-y-1">
+                            {tf.items?.map((item, idx) => (
+                              <div key={idx} className="text-[13px] font-medium p-1.5 bg-muted/50 rounded border border-border/50">
+                                <span className="text-muted-foreground text-xs">{item.itemType} ID:</span> <span className="text-foreground">{item.itemId}</span> <span className="mx-2 text-muted-foreground">|</span> <span className="text-primary font-semibold">Qty: {item.quantity}</span>
+                              </div>
+                            ))}
+                          </div>
                         </td>
-                        <td>{tf.requestedBy?.firstName} {tf.requestedBy?.lastName}</td>
-                        <td>
-                          <span className={`badge ${tf.status === "COMPLETED" ? "badge-success" : tf.status === "REJECTED" ? "badge-danger" : "badge-warning"}`}>
+                        <td className="px-6 py-4">{tf.requestedBy?.firstName} {tf.requestedBy?.lastName}</td>
+                        <td className="px-6 py-4">
+                          <span className={`px-2 py-1 rounded text-xs font-semibold whitespace-nowrap border ${
+                            tf.status === "COMPLETED" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : 
+                            tf.status === "REJECTED" ? "bg-destructive/10 text-destructive border-destructive/20" : 
+                            "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                          }`}>
                             {tf.status}
                           </span>
                         </td>
-                        <td style={{ textAlign: "right" }}>
+                        <td className="px-6 py-4">
                           {tf.status === "REQUESTED" && canApprove ? (
-                            <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
-                              <button className="btn btn-primary" style={{ padding: "6px 12px", fontSize: "12px" }} onClick={() => handleApproveTransfer(tf._id)}>
+                            <div className="flex justify-end gap-2">
+                              <Button size="sm" onClick={() => handleApproveTransfer(tf._id)}>
                                 Approve
-                              </button>
-                              <button className="btn btn-danger" style={{ padding: "6px 12px", fontSize: "12px", background: "rgba(239, 68, 68, 0.1)", color: "#ef4444" }} onClick={() => handleRejectTransfer(tf._id)}>
+                              </Button>
+                              <Button size="sm" variant="destructive" onClick={() => handleRejectTransfer(tf._id)}>
                                 Reject
-                              </button>
+                              </Button>
                             </div>
                           ) : (
-                            <span style={{ fontSize: "12px", color: "var(--secondary)" }}>Reviewed</span>
+                            <div className="text-right text-xs text-muted-foreground font-medium pr-4">Reviewed</div>
                           )}
                         </td>
                       </tr>
@@ -372,45 +393,60 @@ export default function InventoryPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Initialize Stock modal */}
       {showInitModal && (
-        <div className="modal-overlay">
-          <div className="modal-content glass-card">
-            <div className="modal-header">
-              <h3>Initialize Stock Balance</h3>
-              <button className="btn btn-secondary" style={{ padding: "4px" }} onClick={() => setShowInitModal(false)}>
-                ✕
-              </button>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-md shadow-lg border-border/60">
             <form onSubmit={handleInitSubmit}>
-              <div className="modal-body">
-                {error && <div className="alert alert-danger">{error}</div>}
+              <CardHeader className="flex flex-row items-center justify-between border-b border-border/40 pb-4">
+                <CardTitle className="text-lg">Initialize Stock Balance</CardTitle>
+                <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowInitModal(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                {error && <div className="p-3 text-sm text-destructive-foreground bg-destructive rounded-md">{error}</div>}
 
                 {currentUser.role === "SUPER_ADMIN" && (
-                  <div className="form-group">
-                    <label className="form-label">Branch</label>
-                    <select className="form-control" value={initBranchId} onChange={(e) => setInitBranchId(e.target.value)} required>
+                  <div className="space-y-2">
+                    <Label>Branch</Label>
+                    <select 
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" 
+                      value={initBranchId} 
+                      onChange={(e) => setInitBranchId(e.target.value)} 
+                      required
+                    >
                       <option value="">-- Select Branch --</option>
                       {branches.map(b => <option key={b._id} value={b._id}>{b.branchName}</option>)}
                     </select>
                   </div>
                 )}
 
-                <div className="form-group">
-                  <label className="form-label">Select Product</label>
-                  <select className="form-control" value={initProductId} onChange={(e) => setInitProductId(e.target.value)} required>
+                <div className="space-y-2">
+                  <Label>Select Product</Label>
+                  <select 
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" 
+                    value={initProductId} 
+                    onChange={(e) => setInitProductId(e.target.value)} 
+                    required
+                  >
                     <option value="">-- Choose Product --</option>
                     {products.map(p => <option key={p._id} value={p._id}>{p.productName} ({p.productCode})</option>)}
                   </select>
                 </div>
 
                 {products.find(p => p._id === initProductId)?.variants?.length > 0 && (
-                  <div className="form-group">
-                    <label className="form-label">Variant / Size</label>
-                    <select className="form-control" value={initVariantId} onChange={(e) => setInitVariantId(e.target.value)} required>
+                  <div className="space-y-2">
+                    <Label>Variant / Size</Label>
+                    <select 
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" 
+                      value={initVariantId} 
+                      onChange={(e) => setInitVariantId(e.target.value)} 
+                      required
+                    >
                       <option value="">-- Choose Variant --</option>
                       {products.find(p => p._id === initProductId)?.variants.map(v => (
                         <option key={v._id} value={v._id}>{v.name} ({formatCurrency(v.price)})</option>
@@ -419,23 +455,21 @@ export default function InventoryPage() {
                   </div>
                 )}
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                  <div className="form-group">
-                    <label className="form-label">Opening Stock Quantity</label>
-                    <input
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Opening Stock</Label>
+                    <Input
                       type="number"
-                      className="form-control"
                       value={initCurrentStock}
                       onChange={(e) => setInitCurrentStock(parseInt(e.target.value) || 0)}
                       min="0"
                       required
                     />
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Reorder Level Alert</label>
-                    <input
+                  <div className="space-y-2">
+                    <Label>Reorder Alert Level</Label>
+                    <Input
                       type="number"
-                      className="form-control"
                       value={initReorderLevel}
                       onChange={(e) => setInitReorderLevel(parseInt(e.target.value) || 0)}
                       min="0"
@@ -443,44 +477,54 @@ export default function InventoryPage() {
                     />
                   </div>
                 </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowInitModal(false)}>
+              </CardContent>
+              <CardFooter className="flex justify-end gap-2 border-t border-border/40 pt-4 px-6 pb-6 bg-muted/10">
+                <Button type="button" variant="outline" onClick={() => setShowInitModal(false)}>
                   Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
+                </Button>
+                <Button type="submit">
                   Initialize Record
-                </button>
-              </div>
+                </Button>
+              </CardFooter>
             </form>
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Stock Adjustment modal */}
       {showAdjustModal && (
-        <div className="modal-overlay">
-          <div className="modal-content glass-card">
-            <div className="modal-header">
-              <h3>Log Damage / Wastage Stock Adjustment</h3>
-              <button className="btn btn-secondary" style={{ padding: "4px" }} onClick={() => setShowAdjustModal(false)}>
-                ✕
-              </button>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-lg shadow-lg border-border/60">
             <form onSubmit={handleAdjustSubmit}>
-              <div className="modal-body">
-                {error && <div className="alert alert-danger">{error}</div>}
-                <div className="form-group">
-                  <label className="form-label">Item Type</label>
-                  <select className="form-control" value={adjItemType} onChange={(e) => { setAdjItemType(e.target.value); setAdjItemId(""); setAdjVariantId(""); }}>
+              <CardHeader className="flex flex-row items-center justify-between border-b border-border/40 pb-4">
+                <CardTitle className="text-lg">Log Damage / Wastage</CardTitle>
+                <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowAdjustModal(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                {error && <div className="p-3 text-sm text-destructive-foreground bg-destructive rounded-md">{error}</div>}
+                
+                <div className="space-y-2">
+                  <Label>Item Type</Label>
+                  <select 
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" 
+                    value={adjItemType} 
+                    onChange={(e) => { setAdjItemType(e.target.value); setAdjItemId(""); setAdjVariantId(""); }}
+                  >
                     <option value="PRODUCT">Regular Product</option>
                     <option value="INGREDIENT">Kitchen Raw Ingredient</option>
                   </select>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Select Item</label>
-                  <select className="form-control" value={adjItemId} onChange={(e) => setAdjItemId(e.target.value)} required>
+                <div className="space-y-2">
+                  <Label>Select Item</Label>
+                  <select 
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" 
+                    value={adjItemId} 
+                    onChange={(e) => setAdjItemId(e.target.value)} 
+                    required
+                  >
                     <option value="">-- Choose Item --</option>
                     {adjItemType === "PRODUCT"
                       ? products.map(p => <option key={p._id} value={p._id}>{p.productName} ({p.productCode})</option>)
@@ -490,9 +534,14 @@ export default function InventoryPage() {
                 </div>
 
                 {adjItemType === "PRODUCT" && products.find(p => p._id === adjItemId)?.variants?.length > 0 && (
-                  <div className="form-group">
-                    <label className="form-label">Variant / Size</label>
-                    <select className="form-control" value={adjVariantId} onChange={(e) => setAdjVariantId(e.target.value)} required>
+                  <div className="space-y-2">
+                    <Label>Variant / Size</Label>
+                    <select 
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" 
+                      value={adjVariantId} 
+                      onChange={(e) => setAdjVariantId(e.target.value)} 
+                      required
+                    >
                       <option value="">-- Choose Variant --</option>
                       {products.find(p => p._id === adjItemId)?.variants.map(v => (
                         <option key={v._id} value={v._id}>{v.name} ({formatCurrency(v.price)})</option>
@@ -501,21 +550,24 @@ export default function InventoryPage() {
                   </div>
                 )}
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                  <div className="form-group">
-                    <label className="form-label">Adjustment Quantity</label>
-                    <input
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Quantity</Label>
+                    <Input
                       type="number"
-                      className="form-control"
                       value={adjQuantity}
                       onChange={(e) => setAdjQuantity(parseInt(e.target.value) || 1)}
                       min="1"
                       required
                     />
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Reason Code</label>
-                    <select className="form-control" value={adjType} onChange={(e) => setAdjType(e.target.value)}>
+                  <div className="space-y-2">
+                    <Label>Reason Code</Label>
+                    <select 
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" 
+                      value={adjType} 
+                      onChange={(e) => setAdjType(e.target.value)}
+                    >
                       <option value="DAMAGE">Damaged / Broken</option>
                       <option value="WASTAGE">Wastage / Spoiled</option>
                       <option value="EXPIRY">Expired</option>
@@ -524,57 +576,67 @@ export default function InventoryPage() {
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Detailed Notes / Reason</label>
+                <div className="space-y-2">
+                  <Label>Detailed Notes / Reason</Label>
                   <textarea
-                    className="form-control"
+                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     placeholder="Enter detailed reason here"
                     rows="2"
                     value={adjReason}
                     onChange={(e) => setAdjReason(e.target.value)}
                   />
                 </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowAdjustModal(false)}>
+              </CardContent>
+              <CardFooter className="flex justify-end gap-2 border-t border-border/40 pt-4 px-6 pb-6 bg-muted/10">
+                <Button type="button" variant="outline" onClick={() => setShowAdjustModal(false)}>
                   Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
+                </Button>
+                <Button type="submit" className="bg-amber-600 hover:bg-amber-700 text-white">
                   Log Write-Off
-                </button>
-              </div>
+                </Button>
+              </CardFooter>
             </form>
-          </div>
+          </Card>
         </div>
       )}
 
       {/* Stock Transfer Request modal */}
       {showTransferModal && (
-        <div className="modal-overlay">
-          <div className="modal-content glass-card">
-            <div className="modal-header">
-              <h3>Request Inter-Branch Stock Transfer</h3>
-              <button className="btn btn-secondary" style={{ padding: "4px" }} onClick={() => setShowTransferModal(false)}>
-                ✕
-              </button>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-lg shadow-lg border-border/60">
             <form onSubmit={handleTransferSubmit}>
-              <div className="modal-body">
-                {error && <div className="alert alert-danger">{error}</div>}
+              <CardHeader className="flex flex-row items-center justify-between border-b border-border/40 pb-4">
+                <CardTitle className="text-lg">Request Inter-Branch Transfer</CardTitle>
+                <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowTransferModal(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                {error && <div className="p-3 text-sm text-destructive-foreground bg-destructive rounded-md">{error}</div>}
 
-                {currentUser.role === "SUPER_ADMIN" ? (
-                  <div className="form-group">
-                    <label className="form-label">Source Branch (From)</label>
-                    <select className="form-control" value={tfFromBranch} onChange={(e) => setTfFromBranch(e.target.value)} required>
+                {currentUser.role === "SUPER_ADMIN" && (
+                  <div className="space-y-2">
+                    <Label>Source Branch (From)</Label>
+                    <select 
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" 
+                      value={tfFromBranch} 
+                      onChange={(e) => setTfFromBranch(e.target.value)} 
+                      required
+                    >
                       <option value="">-- Select Source Branch --</option>
                       {branches.map(b => <option key={b._id} value={b._id}>{b.branchName}</option>)}
                     </select>
                   </div>
-                ) : null}
+                )}
 
-                <div className="form-group">
-                  <label className="form-label">Destination Branch (To)</label>
-                  <select className="form-control" value={tfToBranch} onChange={(e) => setTfToBranch(e.target.value)} required>
+                <div className="space-y-2">
+                  <Label>Destination Branch (To)</Label>
+                  <select 
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" 
+                    value={tfToBranch} 
+                    onChange={(e) => setTfToBranch(e.target.value)} 
+                    required
+                  >
                     <option value="">-- Select Destination Branch --</option>
                     {branches.filter(b => b._id !== tfFromBranch).map(b => (
                       <option key={b._id} value={b._id}>{b.branchName}</option>
@@ -582,17 +644,26 @@ export default function InventoryPage() {
                   </select>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Item Type</label>
-                  <select className="form-control" value={tfItemType} onChange={(e) => { setTfItemType(e.target.value); setTfItemId(""); setTfVariantId(""); }}>
+                <div className="space-y-2">
+                  <Label>Item Type</Label>
+                  <select 
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" 
+                    value={tfItemType} 
+                    onChange={(e) => { setTfItemType(e.target.value); setTfItemId(""); setTfVariantId(""); }}
+                  >
                     <option value="PRODUCT">Regular Product</option>
                     <option value="INGREDIENT">Kitchen Raw Ingredient</option>
                   </select>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Select Item</label>
-                  <select className="form-control" value={tfItemId} onChange={(e) => setTfItemId(e.target.value)} required>
+                <div className="space-y-2">
+                  <Label>Select Item</Label>
+                  <select 
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" 
+                    value={tfItemId} 
+                    onChange={(e) => setTfItemId(e.target.value)} 
+                    required
+                  >
                     <option value="">-- Choose Item --</option>
                     {tfItemType === "PRODUCT"
                       ? products.filter(p => !tfFromBranch || p.branchId?._id === tfFromBranch || p.branchId === tfFromBranch).map(p => <option key={p._id} value={p._id}>{p.productName} ({p.productCode})</option>)
@@ -602,9 +673,14 @@ export default function InventoryPage() {
                 </div>
 
                 {tfItemType === "PRODUCT" && products.find(p => p._id === tfItemId)?.variants?.length > 0 && (
-                  <div className="form-group">
-                    <label className="form-label">Variant / Size</label>
-                    <select className="form-control" value={tfVariantId} onChange={(e) => setTfVariantId(e.target.value)} required>
+                  <div className="space-y-2">
+                    <Label>Variant / Size</Label>
+                    <select 
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" 
+                      value={tfVariantId} 
+                      onChange={(e) => setTfVariantId(e.target.value)} 
+                      required
+                    >
                       <option value="">-- Choose Variant --</option>
                       {products.find(p => p._id === tfItemId)?.variants.map(v => (
                         <option key={v._id} value={v._id}>{v.name} ({formatCurrency(v.price)})</option>
@@ -613,28 +689,27 @@ export default function InventoryPage() {
                   </div>
                 )}
 
-                <div className="form-group">
-                  <label className="form-label">Quantity</label>
-                  <input
+                <div className="space-y-2">
+                  <Label>Quantity</Label>
+                  <Input
                     type="number"
-                    className="form-control"
                     value={tfQuantity}
                     onChange={(e) => setTfQuantity(parseInt(e.target.value) || 1)}
                     min="1"
                     required
                   />
                 </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowTransferModal(false)}>
+              </CardContent>
+              <CardFooter className="flex justify-end gap-2 border-t border-border/40 pt-4 px-6 pb-6 bg-muted/10">
+                <Button type="button" variant="outline" onClick={() => setShowTransferModal(false)}>
                   Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
+                </Button>
+                <Button type="submit">
                   Submit Request
-                </button>
-              </div>
+                </Button>
+              </CardFooter>
             </form>
-          </div>
+          </Card>
         </div>
       )}
     </div>

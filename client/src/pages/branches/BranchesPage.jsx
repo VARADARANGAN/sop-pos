@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { GitBranch, Plus, Edit, Trash2 } from "lucide-react";
+import { GitBranch, Plus, Edit, Trash2, X } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function BranchesPage() {
   const { apiRequest } = useAuth();
@@ -32,7 +36,7 @@ export default function BranchesPage() {
 
   useEffect(() => {
     fetchBranches();
-  }, []);
+  }, [apiRequest]);
 
   const openCreateModal = () => {
     setBranchId(null);
@@ -94,61 +98,68 @@ export default function BranchesPage() {
     }
   };
 
-  if (loading) return <div className="loading-spinner">Loading branches...</div>;
+  if (loading) return (
+    <div className="flex h-full items-center justify-center p-8">
+      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent"></div>
+        <p>Loading branches...</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-        <h2 style={{ margin: 0, display: "flex", alignItems: "center", gap: "10px" }}>
-          <GitBranch style={{ color: "var(--accent)" }} />
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+          <GitBranch className="h-6 w-6 text-primary" />
           Branch Directory
         </h2>
-        <button className="btn btn-primary" onClick={openCreateModal}>
-          <Plus style={{ width: "16px", height: "16px" }} />
+        <Button onClick={openCreateModal} className="shrink-0 gap-2">
+          <Plus className="h-4 w-4" />
           Add Branch
-        </button>
+        </Button>
       </div>
 
-      {error && <div className="alert alert-danger">{error}</div>}
+      {error && <div className="p-3 text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 rounded-md">{error}</div>}
 
-      <div className="glass-card">
-        <div className="table-container">
-          <table className="custom-table">
-            <thead>
+      <Card>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs uppercase bg-muted/50 text-muted-foreground border-b border-border/50">
               <tr>
-                <th>Branch Code</th>
-                <th>Branch Name</th>
-                <th>Contact Phone</th>
-                <th>Email Address</th>
-                <th>Location / Address</th>
-                <th style={{ textAlign: "right" }}>Actions</th>
+                <th className="px-6 py-4 font-semibold">Branch Code</th>
+                <th className="px-6 py-4 font-semibold">Branch Name</th>
+                <th className="px-6 py-4 font-semibold">Contact Phone</th>
+                <th className="px-6 py-4 font-semibold">Email Address</th>
+                <th className="px-6 py-4 font-semibold">Location / Address</th>
+                <th className="px-6 py-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-border/50">
               {branches.length === 0 ? (
                 <tr>
-                  <td colSpan="6" style={{ textAlign: "center" }} className="empty-state">
+                  <td colSpan="6" className="px-6 py-8 text-center text-muted-foreground">
                     No branches configured in the system.
                   </td>
                 </tr>
               ) : (
                 branches.map((b) => (
-                  <tr key={b._id}>
-                    <td>
-                      <span className="badge badge-info">{b.branchCode}</span>
+                  <tr key={b._id} className="hover:bg-muted/30 transition-colors">
+                    <td className="px-6 py-4">
+                      <span className="px-2 py-1 rounded bg-sky-500/10 text-sky-600 border border-sky-500/20 text-xs font-semibold">{b.branchCode}</span>
                     </td>
-                    <td style={{ fontWeight: 600, color: "var(--text-h)" }}>{b.branchName}</td>
-                    <td>{b.phone || "-"}</td>
-                    <td>{b.email || "-"}</td>
-                    <td>{b.address || "-"}</td>
-                    <td style={{ textAlign: "right" }}>
-                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
-                        <button className="btn btn-secondary" style={{ padding: "6px" }} onClick={() => openEditModal(b)}>
-                          <Edit style={{ width: "14px", height: "14px" }} />
-                        </button>
-                        <button className="btn btn-danger" style={{ padding: "6px", background: "rgba(239, 68, 68, 0.1)", color: "#ef4444" }} onClick={() => handleDelete(b._id)}>
-                          <Trash2 style={{ width: "14px", height: "14px" }} />
-                        </button>
+                    <td className="px-6 py-4 font-semibold text-foreground">{b.branchName}</td>
+                    <td className="px-6 py-4">{b.phone || "-"}</td>
+                    <td className="px-6 py-4">{b.email || "-"}</td>
+                    <td className="px-6 py-4">{b.address || "-"}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => openEditModal(b)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20" onClick={() => handleDelete(b._id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -157,86 +168,89 @@ export default function BranchesPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
 
       {/* Custom Dialog Modal */}
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content glass-card">
-            <div className="modal-header">
-              <h3>{branchId ? "Edit Branch details" : "Add New Branch"}</h3>
-              <button className="btn btn-secondary" style={{ padding: "4px" }} onClick={() => setShowModal(false)}>
-                ✕
-              </button>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-lg shadow-lg border-border/60">
             <form onSubmit={handleSubmit}>
-              <div className="modal-body">
-                {error && <div className="alert alert-danger">{error}</div>}
-                <div className="form-group">
-                  <label className="form-label">Branch Code</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="e.g. BR001"
-                    value={branchCode}
-                    onChange={(e) => setBranchCode(e.target.value)}
-                    required
-                    disabled={!!branchId}
-                  />
+              <CardHeader className="flex flex-row items-center justify-between border-b border-border/40 pb-4">
+                <CardTitle className="text-lg">{branchId ? "Edit Branch details" : "Add New Branch"}</CardTitle>
+                <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowModal(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                {error && <div className="p-3 text-sm text-destructive-foreground bg-destructive rounded-md">{error}</div>}
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Branch Code</Label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. BR001"
+                      value={branchCode}
+                      onChange={(e) => setBranchCode(e.target.value)}
+                      required
+                      disabled={!!branchId}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Branch Name</Label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. Times Square Outlet"
+                      value={branchName}
+                      onChange={(e) => setBranchName(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Branch Name</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="e.g. Times Square Outlet"
-                    value={branchName}
-                    onChange={(e) => setBranchName(e.target.value)}
-                    required
-                  />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Email Address</Label>
+                    <Input
+                      type="email"
+                      placeholder="e.g. branch@sop.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Phone Number</Label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. +1234567890"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  </div>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Email Address</label>
-                  <input
-                    type="email"
-                    className="form-control"
-                    placeholder="e.g. branch@sop.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Phone Number</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="e.g. +1234567890"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Address</label>
+
+                <div className="space-y-2">
+                  <Label>Address</Label>
                   <textarea
-                    className="form-control"
+                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     placeholder="Location details"
                     rows="3"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                   />
                 </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
+              </CardContent>
+              <CardFooter className="flex justify-end gap-2 border-t border-border/40 pt-4 px-6 pb-6 bg-muted/10">
+                <Button type="button" variant="outline" onClick={() => setShowModal(false)}>
                   Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
+                </Button>
+                <Button type="submit">
                   {branchId ? "Save Changes" : "Create Branch"}
-                </button>
-              </div>
+                </Button>
+              </CardFooter>
             </form>
-          </div>
+          </Card>
         </div>
       )}
     </div>

@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { KeyRound, ShieldAlert, CheckCircle2 } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function SettingsPage() {
   const { changePassword } = useAuth();
@@ -35,71 +39,74 @@ export default function SettingsPage() {
   };
 
   return (
-    <div style={{ maxWidth: "500px", margin: "0 auto" }}>
-      <div className="glass-card">
-        <h2 style={{ display: "flex", alignItems: "center", gap: "10px", borderBottom: "1px solid var(--border)", paddingBottom: "12px", marginBottom: "20px" }}>
-          <KeyRound style={{ color: "var(--accent)" }} />
-          Change Password
-        </h2>
-
-        {error && (
-          <div className="alert alert-danger" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <ShieldAlert style={{ width: "18px", height: "18px", flexShrink: 0 }} />
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="alert alert-success" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <CheckCircle2 style={{ width: "18px", height: "18px", flexShrink: 0 }} />
-            {success}
-          </div>
-        )}
-
+    <div className="max-w-xl mx-auto w-full pt-4">
+      <Card className="shadow-lg border-border/60">
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Current Password</label>
-            <input
-              type="password"
-              className="form-control"
-              placeholder="Enter current password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              required
-            />
-          </div>
+          <CardHeader className="border-b border-border/40 pb-5">
+            <CardTitle className="text-xl flex items-center gap-2">
+              <KeyRound className="h-5 w-5 text-primary" />
+              Change Password
+            </CardTitle>
+          </CardHeader>
 
-          <div className="form-group">
-            <label className="form-label">New Password</label>
-            <input
-              type="password"
-              className="form-control"
-              placeholder="Min 8 chars, 1 uppercase, 1 special char"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-            />
-          </div>
+          <CardContent className="p-6 space-y-6">
+            {error && (
+              <div className="flex items-center gap-3 p-3.5 text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 rounded-md">
+                <ShieldAlert className="h-5 w-5 shrink-0" />
+                <p className="font-medium">{error}</p>
+              </div>
+            )}
 
-          <div className="form-group">
-            <label className="form-label">Confirm New Password</label>
-            <input
-              type="password"
-              className="form-control"
-              placeholder="Confirm new password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-          </div>
+            {success && (
+              <div className="flex items-center gap-3 p-3.5 text-sm text-emerald-700 bg-emerald-500/10 border border-emerald-500/20 rounded-md">
+                <CheckCircle2 className="h-5 w-5 shrink-0" />
+                <p className="font-medium">{success}</p>
+              </div>
+            )}
 
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "24px" }}>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>Current Password</Label>
+                <Input
+                  type="password"
+                  placeholder="Enter current password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>New Password</Label>
+                <Input
+                  type="password"
+                  placeholder="Min 8 chars, 1 uppercase, 1 special char"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Confirm New Password</Label>
+                <Input
+                  type="password"
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+          </CardContent>
+
+          <CardFooter className="flex justify-end gap-2 border-t border-border/40 pt-5 px-6 pb-6 bg-muted/10">
+            <Button type="submit" disabled={loading} className="w-full sm:w-auto px-8">
               {loading ? "Updating..." : "Update Password"}
-            </button>
-          </div>
+            </Button>
+          </CardFooter>
         </form>
-      </div>
+      </Card>
     </div>
   );
 }

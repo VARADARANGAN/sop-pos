@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { Users, Plus, Edit, Trash2, Key } from "lucide-react";
+import { Users, Plus, Edit, Trash2, Key, X } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function UsersPage() {
   const { apiRequest, user: currentUser } = useAuth();
@@ -42,7 +46,7 @@ export default function UsersPage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [apiRequest, currentUser.role]);
 
   const openCreateModal = () => {
     setUserId(null);
@@ -121,70 +125,81 @@ export default function UsersPage() {
     }
   };
 
-  if (loading) return <div className="loading-spinner">Loading users data...</div>;
+  if (loading) return (
+    <div className="flex h-full items-center justify-center p-8">
+      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent"></div>
+        <p>Loading users data...</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-        <h2 style={{ margin: 0, display: "flex", alignItems: "center", gap: "10px" }}>
-          <Users style={{ color: "var(--accent)" }} />
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+          <Users className="h-6 w-6 text-primary" />
           Staff Directory
         </h2>
-        <button className="btn btn-primary" onClick={openCreateModal}>
-          <Plus style={{ width: "16px", height: "16px" }} />
+        <Button onClick={openCreateModal} className="shrink-0 gap-2">
+          <Plus className="h-4 w-4" />
           Add User
-        </button>
+        </Button>
       </div>
 
-      {error && <div className="alert alert-danger">{error}</div>}
+      {error && <div className="p-3 text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 rounded-md">{error}</div>}
 
-      <div className="glass-card">
-        <div className="table-container">
-          <table className="custom-table">
-            <thead>
+      <Card>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs uppercase bg-muted/50 text-muted-foreground border-b border-border/50">
               <tr>
-                <th>Code</th>
-                <th>Name</th>
-                <th>Email Address</th>
-                <th>Phone</th>
-                <th>Assigned Role</th>
-                <th>Branch</th>
-                <th style={{ textAlign: "right" }}>Actions</th>
+                <th className="px-6 py-4 font-semibold">Code</th>
+                <th className="px-6 py-4 font-semibold">Name</th>
+                <th className="px-6 py-4 font-semibold">Email Address</th>
+                <th className="px-6 py-4 font-semibold">Phone</th>
+                <th className="px-6 py-4 font-semibold">Assigned Role</th>
+                <th className="px-6 py-4 font-semibold">Branch</th>
+                <th className="px-6 py-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-border/50">
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan="7" style={{ textAlign: "center" }} className="empty-state">
+                  <td colSpan="7" className="px-6 py-8 text-center text-muted-foreground">
                     No staff users configured.
                   </td>
                 </tr>
               ) : (
                 users.map((u) => (
-                  <tr key={u._id}>
-                    <td>
-                      <span className="badge badge-info">{u.employeeCode}</span>
+                  <tr key={u._id} className="hover:bg-muted/30 transition-colors">
+                    <td className="px-6 py-4">
+                      <span className="px-2 py-1 rounded bg-sky-500/10 text-sky-600 border border-sky-500/20 text-xs font-semibold">{u.employeeCode}</span>
                     </td>
-                    <td style={{ fontWeight: 600, color: "var(--text-h)" }}>
+                    <td className="px-6 py-4 font-semibold text-foreground">
                       {u.firstName} {u.lastName}
                     </td>
-                    <td>{u.email}</td>
-                    <td>{u.phone || "-"}</td>
-                    <td>
-                      <span className={`badge ${u.role === "SUPER_ADMIN" ? "badge-danger" : u.role === "BRANCH_ADMIN" ? "badge-warning" : "badge-success"}`}>
+                    <td className="px-6 py-4">{u.email}</td>
+                    <td className="px-6 py-4">{u.phone || "-"}</td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2 py-1 rounded text-xs font-semibold whitespace-nowrap border ${
+                        u.role === "SUPER_ADMIN" ? "bg-destructive/10 text-destructive border-destructive/20" : 
+                        u.role === "BRANCH_ADMIN" ? "bg-amber-500/10 text-amber-600 border-amber-500/20" : 
+                        "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                      }`}>
                         {u.role?.replace("_", " ")}
                       </span>
                     </td>
-                    <td>{u.branchId ? u.branchId.branchName || "Assigned" : "All Branches"}</td>
-                    <td style={{ textAlign: "right" }}>
-                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
-                        <button className="btn btn-secondary" style={{ padding: "6px" }} onClick={() => openEditModal(u)}>
-                          <Edit style={{ width: "14px", height: "14px" }} />
-                        </button>
+                    <td className="px-6 py-4 whitespace-nowrap">{u.branchId ? u.branchId.branchName || "Assigned" : "All Branches"}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => openEditModal(u)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
                         {u._id !== currentUser.id && (
-                          <button className="btn btn-danger" style={{ padding: "6px", background: "rgba(239, 68, 68, 0.1)", color: "#ef4444" }} onClick={() => handleDelete(u._id)}>
-                            <Trash2 style={{ width: "14px", height: "14px" }} />
-                          </button>
+                          <Button variant="outline" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20" onClick={() => handleDelete(u._id)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         )}
                       </div>
                     </td>
@@ -194,37 +209,36 @@ export default function UsersPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
 
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content glass-card">
-            <div className="modal-header">
-              <h3>{userId ? "Edit Staff details" : "Add New Staff Member"}</h3>
-              <button className="btn btn-secondary" style={{ padding: "4px" }} onClick={() => setShowModal(false)}>
-                ✕
-              </button>
-            </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-lg shadow-lg border-border/60">
             <form onSubmit={handleSubmit}>
-              <div className="modal-body">
-                {error && <div className="alert alert-danger">{error}</div>}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                  <div className="form-group">
-                    <label className="form-label">First Name</label>
-                    <input
+              <CardHeader className="flex flex-row items-center justify-between border-b border-border/40 pb-4">
+                <CardTitle className="text-lg">{userId ? "Edit Staff details" : "Add New Staff Member"}</CardTitle>
+                <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowModal(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                {error && <div className="p-3 text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 rounded-md">{error}</div>}
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>First Name</Label>
+                    <Input
                       type="text"
-                      className="form-control"
                       placeholder="John"
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       required
                     />
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Last Name</label>
-                    <input
+                  <div className="space-y-2">
+                    <Label>Last Name</Label>
+                    <Input
                       type="text"
-                      className="form-control"
                       placeholder="Doe"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
@@ -233,11 +247,10 @@ export default function UsersPage() {
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Email Address</label>
-                  <input
+                <div className="space-y-2">
+                  <Label>Email Address</Label>
+                  <Input
                     type="email"
-                    className="form-control"
                     placeholder="john@sop.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -245,11 +258,10 @@ export default function UsersPage() {
                   />
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Password {userId && "(leave blank to keep current)"}</label>
-                  <input
+                <div className="space-y-2">
+                  <Label>Password {userId && <span className="text-muted-foreground font-normal text-xs ml-1">(leave blank to keep current)</span>}</Label>
+                  <Input
                     type="password"
-                    className="form-control"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -257,61 +269,62 @@ export default function UsersPage() {
                   />
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Phone Number</label>
-                  <input
+                <div className="space-y-2">
+                  <Label>Phone Number</Label>
+                  <Input
                     type="text"
-                    className="form-control"
                     placeholder="e.g. +1234567890"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                   />
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Assigned Role</label>
-                  <select
-                    className="form-control"
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
-                    disabled={currentUser.role !== "SUPER_ADMIN"}
-                  >
-                    <option value="CASHIER">Cashier</option>
-                    <option value="BRANCH_ADMIN">Branch Admin</option>
-                    <option value="SUPER_ADMIN">Super Admin</option>
-                  </select>
-                </div>
-
-                {currentUser.role === "SUPER_ADMIN" ? (
-                  <div className="form-group">
-                    <label className="form-label">Assigned Branch</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Assigned Role</Label>
                     <select
-                      className="form-control"
-                      value={branchId}
-                      onChange={(e) => setBranchId(e.target.value)}
-                      required={role !== "SUPER_ADMIN"}
-                      disabled={role === "SUPER_ADMIN"}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      value={role}
+                      onChange={(e) => setRole(e.target.value)}
+                      disabled={currentUser.role !== "SUPER_ADMIN"}
                     >
-                      <option value="">-- Select Branch --</option>
-                      {branches.map((b) => (
-                        <option key={b._id} value={b._id}>
-                          {b.branchName} ({b.branchCode})
-                        </option>
-                      ))}
+                      <option value="CASHIER">Cashier</option>
+                      <option value="BRANCH_ADMIN">Branch Admin</option>
+                      <option value="SUPER_ADMIN">Super Admin</option>
                     </select>
                   </div>
-                ) : null}
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
+
+                  {currentUser.role === "SUPER_ADMIN" && (
+                    <div className="space-y-2">
+                      <Label>Assigned Branch</Label>
+                      <select
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        value={branchId}
+                        onChange={(e) => setBranchId(e.target.value)}
+                        required={role !== "SUPER_ADMIN"}
+                        disabled={role === "SUPER_ADMIN"}
+                      >
+                        <option value="">-- Select Branch --</option>
+                        {branches.map((b) => (
+                          <option key={b._id} value={b._id}>
+                            {b.branchName} ({b.branchCode})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+              <CardFooter className="flex justify-end gap-2 border-t border-border/40 pt-4 px-6 pb-6 bg-muted/10">
+                <Button type="button" variant="outline" onClick={() => setShowModal(false)}>
                   Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
+                </Button>
+                <Button type="submit">
                   {userId ? "Save Changes" : "Create User"}
-                </button>
-              </div>
+                </Button>
+              </CardFooter>
             </form>
-          </div>
+          </Card>
         </div>
       )}
     </div>

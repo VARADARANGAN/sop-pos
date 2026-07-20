@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { Coffee, Plus, Edit, Trash2, Layers, Tag } from "lucide-react";
+import { Coffee, Plus, Edit, Trash2, Layers, Tag, X } from "lucide-react";
 import { formatCurrency } from "../../utils/formatters";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function ProductsPage() {
   const { apiRequest, user: currentUser } = useAuth();
@@ -53,7 +57,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [apiRequest]);
 
   const openCreateModal = () => {
     setProductId(null);
@@ -189,88 +193,95 @@ export default function ProductsPage() {
     }
   };
 
-  if (loading) return <div className="loading-spinner">Loading product catalog...</div>;
+  if (loading) return (
+    <div className="flex h-full items-center justify-center p-8">
+      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-r-transparent"></div>
+        <p>Loading product catalog...</p>
+      </div>
+    </div>
+  );
 
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-        <h2 style={{ margin: 0, display: "flex", alignItems: "center", gap: "10px" }}>
-          <Coffee style={{ color: "var(--accent)" }} />
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+          <Coffee className="h-6 w-6 text-primary" />
           Product Catalog & Menu
         </h2>
-        <button className="btn btn-primary" onClick={openCreateModal}>
-          <Plus style={{ width: "16px", height: "16px" }} />
+        <Button onClick={openCreateModal} className="shrink-0 gap-2">
+          <Plus className="h-4 w-4" />
           Add Product
-        </button>
+        </Button>
       </div>
 
-      {error && <div className="alert alert-danger">{error}</div>}
+      {error && <div className="p-3 text-sm text-destructive-foreground bg-destructive/10 border border-destructive/20 rounded-md">{error}</div>}
 
-      <div className="glass-card">
-        <div className="table-container">
-          <table className="custom-table">
-            <thead>
+      <Card>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs uppercase bg-muted/50 text-muted-foreground border-b border-border/50">
               <tr>
-                <th>Code</th>
-                <th>Product Name</th>
-                <th>Category</th>
-                <th>Branch</th>
-                <th>Type</th>
-                <th>Cost Price</th>
-                <th>Selling Price</th>
-                <th style={{ textAlign: "right" }}>Actions</th>
+                <th className="px-6 py-4 font-semibold">Code</th>
+                <th className="px-6 py-4 font-semibold">Product Name</th>
+                <th className="px-6 py-4 font-semibold">Category</th>
+                <th className="px-6 py-4 font-semibold">Branch</th>
+                <th className="px-6 py-4 font-semibold">Type</th>
+                <th className="px-6 py-4 font-semibold">Cost Price</th>
+                <th className="px-6 py-4 font-semibold">Selling Price</th>
+                <th className="px-6 py-4 font-semibold text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-border/50">
               {products.length === 0 ? (
                 <tr>
-                  <td colSpan="8" style={{ textAlign: "center" }} className="empty-state">
+                  <td colSpan="8" className="px-6 py-8 text-center text-muted-foreground">
                     No products configured.
                   </td>
                 </tr>
               ) : (
                 products.map((p) => (
-                  <tr key={p._id}>
-                    <td>
-                      <span className="badge badge-info">{p.productCode}</span>
+                  <tr key={p._id} className="hover:bg-muted/30 transition-colors">
+                    <td className="px-6 py-4">
+                      <span className="px-2 py-1 rounded bg-sky-500/10 text-sky-600 border border-sky-500/20 text-xs font-semibold whitespace-nowrap">{p.productCode}</span>
                     </td>
-                    <td>
-                      <div style={{ fontWeight: 600, color: "var(--text-h)" }}>{p.productName}</div>
+                    <td className="px-6 py-4">
+                      <div className="font-semibold text-foreground">{p.productName}</div>
                       {p.variants && p.variants.length > 0 && (
-                        <div style={{ fontSize: "11px", color: "var(--accent)", marginTop: "4px" }}>
-                          Variants: {p.variants.map((v) => `${v.name} (${formatCurrency(v.price)})`).join(", ")}
+                        <div className="text-[11px] text-muted-foreground mt-1 max-w-[200px] truncate" title={p.variants.map((v) => `${v.name} (${formatCurrency(v.price)})`).join(", ")}>
+                          Variants: {p.variants.map((v) => `${v.name}`).join(", ")}
                         </div>
                       )}
                     </td>
-                    <td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       {p.categoryId
                         ? p.categoryId.categoryCode
                           ? `${p.categoryId.categoryCode} - ${p.categoryId.categoryName}`
                           : p.categoryId.categoryName
                         : "Unassigned"}
                     </td>
-                    <td>{p.branchId?.branchName || "All Branches"}</td>
-                    <td>
+                    <td className="px-6 py-4">{p.branchId?.branchName || "All Branches"}</td>
+                    <td className="px-6 py-4">
                       {p.isCombo ? (
-                        <span className="badge badge-warning" style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                          <Layers style={{ width: "10px", height: "10px" }} /> Combo
+                        <span className="inline-flex items-center gap-1 px-2 py-1 rounded bg-amber-500/10 text-amber-600 border border-amber-500/20 text-[10px] font-bold uppercase tracking-wider">
+                          <Layers className="h-3 w-3" /> Combo
                         </span>
                       ) : p.variants && p.variants.length > 0 ? (
-                        <span className="badge badge-info">Variants</span>
+                        <span className="px-2 py-1 rounded bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 text-[10px] font-bold uppercase tracking-wider">Variants</span>
                       ) : (
-                        <span className="badge badge-success">Single</span>
+                        <span className="px-2 py-1 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-[10px] font-bold uppercase tracking-wider">Single</span>
                       )}
                     </td>
-                    <td>{formatCurrency(p.costPrice)}</td>
-                    <td>{formatCurrency(p.sellingPrice)}</td>
-                    <td style={{ textAlign: "right" }}>
-                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
-                        <button className="btn btn-secondary" style={{ padding: "6px" }} onClick={() => openEditModal(p)}>
-                          <Edit style={{ width: "14px", height: "14px" }} />
-                        </button>
-                        <button className="btn btn-danger" style={{ padding: "6px", background: "rgba(239, 68, 68, 0.1)", color: "#ef4444" }} onClick={() => handleDelete(p._id)}>
-                          <Trash2 style={{ width: "14px", height: "14px" }} />
-                        </button>
+                    <td className="px-6 py-4 font-medium">{formatCurrency(p.costPrice)}</td>
+                    <td className="px-6 py-4 font-medium">{formatCurrency(p.sellingPrice)}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => openEditModal(p)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20" onClick={() => handleDelete(p._id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -279,36 +290,39 @@ export default function ProductsPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
 
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content glass-card" style={{ width: "700px", maxHeight: "90vh", overflowY: "auto" }}>
-            <div className="modal-header">
-              <h3>{productId ? "Edit Product Details" : "Add New Menu Item"}</h3>
-              <button className="btn btn-secondary" style={{ padding: "4px" }} onClick={() => setShowModal(false)}>
-                ✕
-              </button>
-            </div>
-            <form onSubmit={handleSubmit}>
-              <div className="modal-body" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                {error && <div className="alert alert-danger">{error}</div>}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
+          <Card className="w-full max-w-3xl shadow-lg border-border/60 max-h-[95vh] flex flex-col">
+            <form onSubmit={handleSubmit} className="flex flex-col min-h-0">
+              <CardHeader className="flex flex-row items-center justify-between border-b border-border/40 pb-4 shrink-0">
+                <CardTitle className="text-lg">{productId ? "Edit Product Details" : "Add New Menu Item"}</CardTitle>
+                <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowModal(false)}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </CardHeader>
+              <CardContent className="p-6 overflow-y-auto space-y-6">
+                {error && <div className="p-3 text-sm text-destructive-foreground bg-destructive rounded-md">{error}</div>}
 
-                <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "16px" }}>
-                  <div className="form-group">
-                    <label className="form-label">Product/Item Name</label>
-                    <input
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="space-y-2 lg:col-span-2">
+                    <Label>Product/Item Name</Label>
+                    <Input
                       type="text"
-                      className="form-control"
                       placeholder="e.g. Pepperoni Pizza"
                       value={productName}
                       onChange={(e) => setProductName(e.target.value)}
                       required
                     />
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Unit of Measure</label>
-                    <select className="form-control" value={unit} onChange={(e) => setUnit(e.target.value)}>
+                  <div className="space-y-2">
+                    <Label>Unit of Measure</Label>
+                    <select 
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" 
+                      value={unit} 
+                      onChange={(e) => setUnit(e.target.value)}
+                    >
                       <option value="PCS">PCS</option>
                       <option value="KG">KG</option>
                       <option value="GRAM">GRAM</option>
@@ -320,10 +334,15 @@ export default function ProductsPage() {
                   </div>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                  <div className="form-group">
-                    <label className="form-label">Category</label>
-                    <select className="form-control" value={categoryId} onChange={(e) => setCategoryId(e.target.value)} required>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label>Category</Label>
+                    <select 
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" 
+                      value={categoryId} 
+                      onChange={(e) => setCategoryId(e.target.value)} 
+                      required
+                    >
                       <option value="">-- Select Category --</option>
                       {categories.map((c) => (
                         <option key={c._id} value={c._id}>
@@ -333,10 +352,15 @@ export default function ProductsPage() {
                     </select>
                   </div>
 
-                  {currentUser.role === "SUPER_ADMIN" ? (
-                    <div className="form-group">
-                      <label className="form-label">Branch Scoping</label>
-                      <select className="form-control" value={branchId} onChange={(e) => setBranchId(e.target.value)} required>
+                  {currentUser.role === "SUPER_ADMIN" && (
+                    <div className="space-y-2">
+                      <Label>Branch Scoping</Label>
+                      <select 
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" 
+                        value={branchId} 
+                        onChange={(e) => setBranchId(e.target.value)} 
+                        required
+                      >
                         <option value="">-- Select Branch --</option>
                         {branches.map((b) => (
                           <option key={b._id} value={b._id}>
@@ -345,13 +369,13 @@ export default function ProductsPage() {
                         ))}
                       </select>
                     </div>
-                  ) : null}
+                  )}
                 </div>
 
-                <div className="form-group">
-                  <label className="form-label">Description</label>
+                <div className="space-y-2">
+                  <Label>Description</Label>
                   <textarea
-                    className="form-control"
+                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     placeholder="Short description of taste or contents"
                     rows="2"
                     value={description}
@@ -360,40 +384,35 @@ export default function ProductsPage() {
                 </div>
 
                 {/* Pricing / GST */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
-                  <div className="form-group">
-                    <label className="form-label">Cost Price ($)</label>
-                    <input
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label>Cost Price ($)</Label>
+                    <Input
                       type="number"
                       step="0.01"
                       min="0"
-                      max="999999"
-                      className="form-control"
                       value={costPrice}
                       onChange={(e) => setCostPrice(parseFloat(e.target.value) || 0)}
                       required={!hasVariants}
                       disabled={hasVariants}
                     />
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Selling Price ($)</label>
-                    <input
+                  <div className="space-y-2">
+                    <Label>Selling Price ($)</Label>
+                    <Input
                       type="number"
                       step="0.01"
                       min="0.01"
-                      max="999999"
-                      className="form-control"
                       value={sellingPrice}
                       onChange={(e) => setSellingPrice(parseFloat(e.target.value) || 0)}
                       required={!hasVariants}
                       disabled={hasVariants}
                     />
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">GST Tax (%)</label>
-                    <input
+                  <div className="space-y-2">
+                    <Label>GST Tax (%)</Label>
+                    <Input
                       type="number"
-                      className="form-control"
                       value={gst}
                       onChange={(e) => setGst(parseFloat(e.target.value) || 0)}
                     />
@@ -401,23 +420,21 @@ export default function ProductsPage() {
                 </div>
 
                 {/* SKU / Barcode */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                  <div className="form-group">
-                    <label className="form-label">SKU Code</label>
-                    <input
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label>SKU Code</Label>
+                    <Input
                       type="text"
-                      className="form-control"
                       placeholder="e.g. SKU-PIZZA-PEP"
                       value={sku}
                       onChange={(e) => setSku(e.target.value)}
                       disabled={hasVariants}
                     />
                   </div>
-                  <div className="form-group">
-                    <label className="form-label">Barcode Value</label>
-                    <input
+                  <div className="space-y-2">
+                    <Label>Barcode Value</Label>
+                    <Input
                       type="text"
-                      className="form-control"
                       placeholder="e.g. 123456789012"
                       value={barcode}
                       onChange={(e) => setBarcode(e.target.value)}
@@ -427,8 +444,8 @@ export default function ProductsPage() {
                 </div>
 
                 {/* Switches */}
-                <div style={{ display: "flex", gap: "24px", margin: "10px 0" }}>
-                  <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontWeight: 600 }}>
+                <div className="flex flex-col sm:flex-row gap-6 p-4 bg-muted/20 border border-border/50 rounded-lg">
+                  <label className="flex items-center gap-3 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={hasVariants}
@@ -437,10 +454,11 @@ export default function ProductsPage() {
                         if (e.target.checked) setIsCombo(false);
                       }}
                       disabled={isCombo}
+                      className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
                     />
-                    Enable Sizes / Variants (e.g. Small, Medium)
+                    <span className="font-medium text-sm">Enable Sizes / Variants</span>
                   </label>
-                  <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontWeight: 600 }}>
+                  <label className="flex items-center gap-3 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={isCombo}
@@ -449,145 +467,143 @@ export default function ProductsPage() {
                         if (e.target.checked) setHasVariants(false);
                       }}
                       disabled={hasVariants}
+                      className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
                     />
-                    This is a Combo Meal (bundle of products)
+                    <span className="font-medium text-sm">This is a Combo Meal</span>
                   </label>
                 </div>
 
                 {/* Variants Editor Section */}
                 {hasVariants && (
-                  <div style={{ padding: "16px", background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)", borderRadius: "8px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-                      <h4 style={{ margin: 0 }}>Sizes & Pricing Grid</h4>
-                      <button type="button" className="btn btn-secondary" style={{ padding: "6px 12px", fontSize: "12px" }} onClick={addVariantRow}>
-                        + Add Size Row
-                      </button>
+                  <div className="p-4 bg-muted/10 border border-border/50 rounded-lg space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-semibold text-sm">Sizes & Pricing Grid</h4>
+                      <Button type="button" variant="outline" size="sm" onClick={addVariantRow} className="h-8 text-xs">
+                        <Plus className="h-3 w-3 mr-1" /> Add Size Row
+                      </Button>
                     </div>
                     {variants.length === 0 ? (
-                      <p style={{ fontSize: "13px", fontStyle: "italic", textAlign: "center", margin: "16px 0" }}>No variants configured. Click Add to define small/medium/large options.</p>
+                      <p className="text-sm italic text-muted-foreground text-center py-4">No variants configured. Click Add to define options.</p>
                     ) : (
-                      variants.map((v, index) => (
-                        <div key={index} style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 2fr 1fr", gap: "10px", alignItems: "center", marginBottom: "8px" }}>
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Name (e.g. Large)"
-                            value={v.name}
-                            onChange={(e) => updateVariantRow(index, "name", e.target.value)}
-                            required
-                          />
-                          <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            max="999999"
-                            className="form-control"
-                            placeholder="Cost"
-                            value={v.costPrice}
-                            onChange={(e) => updateVariantRow(index, "costPrice", parseFloat(e.target.value) || 0)}
-                            required
-                          />
-                          <input
-                            type="number"
-                            step="0.01"
-                            min="0.01"
-                            max="999999"
-                            className="form-control"
-                            placeholder="Sell"
-                            value={v.price}
-                            onChange={(e) => updateVariantRow(index, "price", parseFloat(e.target.value) || 0)}
-                            required
-                          />
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Barcode"
-                            value={v.barcode}
-                            onChange={(e) => updateVariantRow(index, "barcode", e.target.value)}
-                          />
-                          <button type="button" className="btn btn-danger" style={{ padding: "6px" }} onClick={() => removeVariantRow(index)}>
-                            ✕
-                          </button>
-                        </div>
-                      ))
+                      <div className="space-y-3">
+                        {variants.map((v, index) => (
+                          <div key={index} className="grid grid-cols-[2fr_1fr_1fr_2fr_auto] gap-2 items-center">
+                            <Input
+                              type="text"
+                              placeholder="Name"
+                              value={v.name}
+                              onChange={(e) => updateVariantRow(index, "name", e.target.value)}
+                              required
+                              className="h-9"
+                            />
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="Cost"
+                              value={v.costPrice}
+                              onChange={(e) => updateVariantRow(index, "costPrice", parseFloat(e.target.value) || 0)}
+                              required
+                              className="h-9"
+                            />
+                            <Input
+                              type="number"
+                              step="0.01"
+                              placeholder="Sell"
+                              value={v.price}
+                              onChange={(e) => updateVariantRow(index, "price", parseFloat(e.target.value) || 0)}
+                              required
+                              className="h-9"
+                            />
+                            <Input
+                              type="text"
+                              placeholder="Barcode"
+                              value={v.barcode}
+                              onChange={(e) => updateVariantRow(index, "barcode", e.target.value)}
+                              className="h-9"
+                            />
+                            <Button type="button" variant="destructive" size="icon" className="h-9 w-9" onClick={() => removeVariantRow(index)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
                 )}
 
                 {/* Combo Items Editor Section */}
                 {isCombo && (
-                  <div style={{ padding: "16px", background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)", borderRadius: "8px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
-                      <h4 style={{ margin: 0 }}>Combo Meal Components</h4>
-                      <button type="button" className="btn btn-secondary" style={{ padding: "6px 12px", fontSize: "12px" }} onClick={addComboRow}>
-                        + Add Component
-                      </button>
+                  <div className="p-4 bg-muted/10 border border-border/50 rounded-lg space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-semibold text-sm">Combo Meal Components</h4>
+                      <Button type="button" variant="outline" size="sm" onClick={addComboRow} className="h-8 text-xs">
+                        <Plus className="h-3 w-3 mr-1" /> Add Component
+                      </Button>
                     </div>
                     {comboItems.length === 0 ? (
-                      <p style={{ fontSize: "13px", fontStyle: "italic", textAlign: "center", margin: "16px 0" }}>No components listed. Link underlying dishes.</p>
+                      <p className="text-sm italic text-muted-foreground text-center py-4">No components listed. Link underlying dishes.</p>
                     ) : (
-                      comboItems.map((item, index) => (
-                        <div key={index} style={{ display: "grid", gridTemplateColumns: "3fr 2fr 1fr", gap: "10px", alignItems: "center", marginBottom: "8px" }}>
-                          <select
-                            className="form-control"
-                            value={item.productId}
-                            onChange={(e) => {
-                              const prod = products.find(p => p._id === e.target.value);
-                              updateComboRow(index, "productId", e.target.value);
-                              updateComboRow(index, "variantId", prod?.variants?.[0]?._id || null);
-                            }}
-                            required
-                          >
-                            <option value="">-- Choose Product --</option>
-                            {products.filter(p => p._id !== productId && !p.isCombo).map((p) => (
-                              <option key={p._id} value={p._id}>
-                                {p.productName}
-                              </option>
-                            ))}
-                          </select>
-                          {/* Optional Variant selection if product has variants */}
-                          <select
-                            className="form-control"
-                            value={item.variantId || ""}
-                            onChange={(e) => updateComboRow(index, "variantId", e.target.value || null)}
-                            disabled={!products.find(p => p._id === item.productId)?.variants?.length}
-                          >
-                            <option value="">Regular</option>
-                            {products.find(p => p._id === item.productId)?.variants?.map(v => (
-                              <option key={v._id} value={v._id}>
-                                {v.name}
-                              </option>
-                            ))}
-                          </select>
-                          <div style={{ display: "flex", gap: "8px" }}>
-                            <input
+                      <div className="space-y-3">
+                        {comboItems.map((item, index) => (
+                          <div key={index} className="grid grid-cols-[3fr_2fr_1fr_auto] gap-2 items-center">
+                            <select
+                              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                              value={item.productId}
+                              onChange={(e) => {
+                                const prod = products.find(p => p._id === e.target.value);
+                                updateComboRow(index, "productId", e.target.value);
+                                updateComboRow(index, "variantId", prod?.variants?.[0]?._id || null);
+                              }}
+                              required
+                            >
+                              <option value="">-- Choose Product --</option>
+                              {products.filter(p => p._id !== productId && !p.isCombo).map((p) => (
+                                <option key={p._id} value={p._id}>
+                                  {p.productName}
+                                </option>
+                              ))}
+                            </select>
+                            <select
+                              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50"
+                              value={item.variantId || ""}
+                              onChange={(e) => updateComboRow(index, "variantId", e.target.value || null)}
+                              disabled={!products.find(p => p._id === item.productId)?.variants?.length}
+                            >
+                              <option value="">Regular</option>
+                              {products.find(p => p._id === item.productId)?.variants?.map(v => (
+                                <option key={v._id} value={v._id}>
+                                  {v.name}
+                                </option>
+                              ))}
+                            </select>
+                            <Input
                               type="number"
-                              className="form-control"
                               value={item.quantity}
                               onChange={(e) => updateComboRow(index, "quantity", parseInt(e.target.value) || 1)}
                               min="1"
                               required
+                              className="h-9"
                             />
-                            <button type="button" className="btn btn-danger" style={{ padding: "6px" }} onClick={() => removeComboRow(index)}>
-                              ✕
-                            </button>
+                            <Button type="button" variant="destructive" size="icon" className="h-9 w-9" onClick={() => removeComboRow(index)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
-                        </div>
-                      ))
+                        ))}
+                      </div>
                     )}
                   </div>
                 )}
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>
+              </CardContent>
+              <CardFooter className="flex justify-end gap-2 border-t border-border/40 pt-4 px-6 pb-6 shrink-0 bg-muted/10">
+                <Button type="button" variant="outline" onClick={() => setShowModal(false)}>
                   Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
+                </Button>
+                <Button type="submit">
                   {productId ? "Save Changes" : "Create Product"}
-                </button>
-              </div>
+                </Button>
+              </CardFooter>
             </form>
-          </div>
+          </Card>
         </div>
       )}
     </div>
